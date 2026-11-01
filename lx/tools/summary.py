@@ -197,6 +197,42 @@ def main():
                 w("  - these are a state row's ballast columns, which the circuit sets to "
                   "2^24 = 16,777,216 (lx/ir.py A_REF): the decode kernel's sum lands on it, the "
                   "chunked prefill kernel's one fp32 step below; the predictions are the same")
+    if (RES / "head_activity.json").exists():
+        ha = load("head_activity.json")
+        dt, pb_ = ha["decode_per_token_total"], ha["prefill"]["boot"]
+        w(f"- how much GDN work is live (tools/head_activity.py): in the boot's prefill, "
+          f"{pb_['pairs_active']:,} of {pb_['pairs_total']:,} (key head, 64-token block) pairs "
+          f"({pb_['active_fraction']:.1%}) have a nonzero query, key or decay, and only those run; "
+          f"in the decode (`{ha['cmd']}`, {ha['decode_tokens']:,} tokens), per token, of "
+          f"{dt['live']:,.0f} live value heads {dt['beta_nonzero']} have a nonzero write gate, "
+          f"{dt['state_changed']} change their state and {dt['output_nonzero']} give a nonzero "
+          f"output")
+    if (RES / "fast_decode_skip.json").exists():
+        fs = load("fast_decode_skip.json")
+        w(f"- decode with idle_skip (lx/fast_kernels.py: fla's step, except that value heads "
+          f"whose query, key and decay are all zero write their zero output and leave their "
+          f"state untouched): the stock decode and lx.fast for {fs['stock_tokens']:,} tokens, "
+          f"streams identical {fs['streams_identical_first_n']}, state elements differing after "
+          f"them {fs['state_elements_differ_after_n']}; lx.fast for {fs['fast_tokens']:,} tokens "
+          f"identical to the reference {fs['fast_same_as_reference']}; "
+          f"{fs['fast_steady_tok_per_s']} tok/s ({fs['fast_steady_tok_per_s'] / pure['tok_per_s']:.1f}x "
+          f"the stock decode)")
+    if (RES / "pure_boot_skip.json").exists():
+        pk = load("pure_boot_skip.json")
+        w(f"- pure boot with idle_skip, from reset: {pk['tokens']:,} tokens of "
+          f"{pk['reference_tokens']:,}, identical to the reference {pk['same_as_reference']} "
+          f"(first difference: {pk['first_difference']}), in {pk['seconds']} s = "
+          f"{pk['seconds'] / 3600:.2f} h ({pk['tok_per_s']} tok/s, peak {pk['peak_gb']} GB); "
+          f"console matches the reference {pk['console_matches_reference']} "
+          f"({pk['console_bytes']:,} bytes)")
+        for name, what in (("pure_boot_skip_vs_pure.json", "the pure boot without idle_skip"),
+                           ("pure_boot_skip_compare.json", "the stock (prefill) boot")):
+            if (RES / name).exists():
+                c = load(name)
+                w(f"- its final state against {what}: {c['elements_differ']:,} of "
+                  f"{c['elements']:,} state elements differ"
+                  + "".join(f"; layer {d['layer']} {d['state']} {d['index']}: {d['a']:,.0f} vs "
+                            f"{d['b']:,.0f}" for d in c.get("differences", [])))
     if (RES / "fast_boot_compiled.json").exists():
         fc = load("fast_boot_compiled.json")
         cb = runs(fc, "boot")[0]
@@ -209,6 +245,46 @@ def main():
             w(f"- its final state against the stock boot: {c['elements_differ']} of "
               f"{c['elements']:,} state elements differ, host state same "
               f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
+    if (RES / "mega_boot.json").exists():
+        mk = load("mega_boot.json")
+        w("\n## The megakernel: the whole decode step in one persistent kernel (merged model, "
+          "one H100)\n")
+        w("csrc/mega.cu runs a decode step (the 37 chip layers' sparse projections, conv "
+          "windows, delta rule, gated norm and SwiGLU units, then the output head and its "
+          f"argmax) in one cooperative kernel resident on all {mk['ctas']} SMs, looping over "
+          "tokens on the GPU: each step's argmax is the next step's input without the host. "
+          "Same published tensors (their nonzero entries, in shared memory where they fit), "
+          "rounding where PyTorch and fla round. GDN steps that leave the residual as it is run "
+          "ahead of it speculatively; when one does not, its layer's conv windows are put back "
+          "and the steps after it run again (the result is the same either way). The numbers "
+          "above stand; these are the same model's.\n")
+        for name, where in (("mega_check_start.json", "from reset"),
+                            ("mega_check_mid.json", "from boot token 3,000,000"),
+                            ("mega_check_shell.json", "from the booted snapshot, `echo hi` typed")):
+            if (RES / name).exists():
+                c = load(name)
+                w(f"- {where}: the stock decode and the megakernel for {c['stock_tokens']:,} "
+                  f"tokens, streams identical {c['streams_identical_first_n']}, state elements "
+                  f"differing after them {c['state_elements_differ_after_n']}; the megakernel "
+                  f"for {c['mega_tokens']:,} tokens identical to the reference "
+                  f"{c['mega_same_as_reference']} ({c['mega_long_tok_per_s']:,} tok/s; the stock "
+                  f"decode {c['stock_tok_per_s']} tok/s)")
+        w(f"- boot from reset to the shell prompt, the model alone (no reference, no prefill, no "
+          f"drafting; the proposer's stream only compared with, chunk by chunk): "
+          f"{mk['tokens']:,} tokens of {mk['reference_tokens']:,}, identical to the reference "
+          f"{mk['same_as_reference']} (first difference: {mk['first_difference']}), in "
+          f"{mk['seconds']} s = {mk['minutes']} min ({mk['tok_per_s']:,} tok/s, one launch per "
+          f"{mk['tokens_a_launch']:,} tokens); console matches the reference "
+          f"{mk['console_matches_reference']} ({mk['console_bytes']:,} bytes)")
+        for name, what in (("mega_boot_vs_pure.json", "the stock decode's pure boot"),
+                           ("mega_boot_compare.json", "the stock (prefill) boot")):
+            if (RES / name).exists():
+                c = load(name)
+                w(f"- its final state against {what}: {c['elements_differ']:,} of "
+                  f"{c['elements']:,} state elements differ, host state same "
+                  f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}"
+                  + "".join(f"; layer {d['layer']} {d['state']} {d['index']}: {d['a']:,.0f} vs "
+                            f"{d['b']:,.0f}" for d in c.get("differences", [])))
     if (RES / "lean_boot.json").exists():
         lb = load("lean_boot.json")
         lr = runs(lb, "boot")[0]

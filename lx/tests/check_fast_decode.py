@@ -23,7 +23,7 @@ from lx.session import Session
 def pure(s: Session, data: bytes, n: int):
     torch.cuda.synchronize()
     t0 = time.time()
-    out = s.type(data)
+    out = s.type(data) if data else []
     out += s.free(n - len(out))
     torch.cuda.synchronize()
     return out, time.time() - t0

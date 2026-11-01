@@ -10,6 +10,11 @@ huggingface-hub==2.2.0
 einops==0.8.2
 jinja2==3.1.6
 numpy==2.4.6
+# nvcc for lx/csrc (the megakernel), installed beside torch's CUDA libraries
+nvidia-cuda-nvcc==13.0.88
+nvidia-cuda-crt==13.0.88
+nvidia-nvvm==13.0.88
+nvidia-cuda-cccl==13.0.85
 # tests/eval_text.py (MMLU), tools/
 pyarrow==26.0.0
 pillow==12.3.0
