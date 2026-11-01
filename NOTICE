@@ -8,3 +8,7 @@ ref/lxtrace.c, ref/rvtrace.c
     This project's (MIT). They are compiled together with mini-rv32ima.h from
     https://github.com/cnlohr/mini-rv32ima (MIT, Copyright (c) 2022 CNLohr), which is not
     included here.
+
+lx/lx/ir.py, lx/lx/prims.py, lx/lx/graph.py, lx/lx/emit.py
+    Derived from Qwenputer's chipformer, https://github.com/divagr18/qwenputer
+    (MIT, Copyright (c) 2026 Divyansh Agrawal).
