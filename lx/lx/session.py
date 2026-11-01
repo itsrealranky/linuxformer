@@ -54,18 +54,23 @@ def console(tokens) -> bytes:
 
 class Session:
     def __init__(self, c, model, machine: R.Machine | None, chunk: int = 65536,
-                 offset: int = 0) -> None:
+                 offset: int = 0, fast=None) -> None:
         """``offset``: chip token t is model id offset + t (lx.merge: Qwen's vocabulary first);
-        the head's argmax is then over the chip's rows only."""
+        the head's argmax is then over the chip's rows only. ``fast``: an lx.fast.Fast of the
+        model, which verify() then runs instead of the stock forward."""
         from transformers import DynamicCache
 
         self.c, self.model, self.chunk, self.offset = c, model, chunk, offset
+        self.fast = fast
         self.rows = slice(offset, offset + S.VOCAB) if offset else None
         self.n_chip = c.n_layers()
         self.dev = next(model.parameters()).device
         self.cache = DynamicCache(config=model.config)
-        zero = torch.zeros(1, 1, model.config.hidden_size, dtype=model.dtype, device=self.dev)
-        hf.chip_forward(model, zero, self.cache, self.n_chip)
+        if fast is not None and fast.lean:
+            fast.init_cache(self.cache, self.dev)
+        else:
+            zero = torch.zeros(1, 1, model.config.hidden_size, dtype=model.dtype, device=self.dev)
+            hf.chip_forward(model, zero, self.cache, self.n_chip)
         if machine is not None:
             core.snapshot(c, machine)
             hf.inject(c, self.cache)
@@ -88,8 +93,11 @@ class Session:
         preds = []
         for a in range(0, len(toks), self.chunk):
             e = self.model.model.embed_tokens(x[:, a:a + self.chunk] + self.offset)
-            h = hf.chip_forward(self.model, e, self.cache, self.n_chip)[0]
-            preds.append(hf.head_argmax(self.model, h, rows=self.rows))
+            if self.fast:
+                preds.append(self.fast.head_argmax(self.fast.forward(e, self.cache)[0]))
+            else:
+                h = hf.chip_forward(self.model, e, self.cache, self.n_chip)[0]
+                preds.append(hf.head_argmax(self.model, h, rows=self.rows))
         pred = torch.cat(preds)
         # prediction i is for token i + 1; the one before toks[0] came from the last call
         prev = torch.tensor([-1 if self.next is None else self.next], device=self.dev)
@@ -130,8 +138,11 @@ class Session:
 
     # --- the pure path --------------------------------------------------------------------
     def _body(self) -> None:
-        h = hf.chip_forward(self.model, self.model.model.embed_tokens(self.g_ids), self.cache,
-                            self.n_chip)[0]
+        e = self.model.model.embed_tokens(self.g_ids)
+        if self.fast:
+            self.g_pred.copy_(self.fast.head_argmax(self.fast.decode(e[0], self.cache)))
+            return
+        h = hf.chip_forward(self.model, e, self.cache, self.n_chip)[0]
         self.g_pred.copy_(hf.head_argmax(self.model, h, rows=self.rows))
 
     @torch.no_grad()
@@ -175,10 +186,37 @@ class Session:
             out.append(t)
         return out
 
+    run_k = 64  # free() without a stop runs this many steps per graph, fed back on the GPU
+
+    @torch.no_grad()
+    def _capture_run(self) -> None:
+        """One CUDA graph of run_k single-token steps, each fed the one before's prediction on
+        the GPU (in the step graph's buffers): one host sync per run_k tokens."""
+        if self.graph is None:
+            self._capture()
+        self.g_run = torch.zeros(self.run_k, dtype=torch.long, device=self.dev)
+        self.run_graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(self.run_graph):
+            for i in range(self.run_k):
+                self._body()
+                self.g_run[i:i + 1].copy_(self.g_pred)
+                self.g_ids.copy_(self.g_pred.view(1, 1) + self.offset)
+
     def free(self, n: int, stop=None) -> list[int]:
         """Feed the model its own predictions for n tokens (or until ``stop(tokens)``)."""
         out = []
-        for _ in range(n):
+        while stop is None and n - len(out) >= self.run_k:
+            if getattr(self, "run_graph", None) is None:
+                self._capture_run()
+            self.g_ids.fill_(self.next + self.offset)
+            self.run_graph.replay()
+            pred = self.g_run.tolist()
+            fed = [self.next] + pred[:-1]
+            out += fed
+            self.next, self.last = pred[-1], fed[-1]
+            self.n += len(fed)
+            self._count(fed)
+        while len(out) < n:
             t = self.next
             self.step(t)
             out.append(t)
@@ -209,10 +247,11 @@ class Session:
             torch.save(d, path)
 
     @classmethod
-    def load(cls, c, model, path, chunk: int = 65536, offset: int = 0) -> "Session":
+    def load(cls, c, model, path, chunk: int = 65536, offset: int = 0,
+             fast=None) -> "Session":
         d = load_safe(path) if Path(path).suffix == ".safetensors" else \
             torch.load(path, weights_only=False)
-        s = cls(c, model, None, chunk, offset)
+        s = cls(c, model, None, chunk, offset, fast)
         s._set_state([(cs.to(s.dev), rs.to(s.dev)) for cs, rs in d["state"]])
         s.next, s.last, s.n, s.waiting, s.ref = d["next"], d["last"], d["n"], d["waiting"], d["ref"]
         return s

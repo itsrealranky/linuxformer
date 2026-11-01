@@ -147,6 +147,93 @@ def main():
     w(f"- from the exported files alone: model ready in {ee['build_s']} s, snapshot in "
       f"{snap['seconds']} s, then `{run['cmd']}` {run['tokens']:,} tokens verified in "
       f"{run['seconds']} s ({run['tok_per_s']:,} tok/s), output `{run['output'].strip()}`")
+    fb = load("fast_boot.json")
+    fboot = runs(fb, "boot")[0]
+    w("\n## lx.fast: the same weights, skipping their zeros (merged model, one H100)\n")
+    w("lx/fast.py runs the chip layers over the same published tensors, on only their nonzero "
+      "rows, columns and active GDN heads. Verifying (prefill) uses the stock kernels (fla's "
+      "chunked kernel, cuBLAS) and torch ops; decoding uses fla's recurrent kernel, with the "
+      "steps between its calls compiled by torch.compile, rounding where eager rounds. Nothing "
+      "about the CPU is written by hand. The stock numbers above stand; these are the same runs "
+      "with lx.fast.\n")
+    w(f"- verify path (chunked prefill), boot from reset: 0 wrong of {fboot['tokens'] - 1:,} in "
+      f"{fboot['seconds']} s ({fboot['tok_per_s']:,} tok/s, stock {mboot['tok_per_s']:,}: "
+      f"{fboot['tok_per_s'] / mboot['tok_per_s']:.1f}x; peak {fb['peak_gb']} GB)")
+    for name in ("fast_boot_compare.json", "fast_boot_compare2.json"):
+        c = load(name)
+        con = f", console matches the reference {c['console_matches_reference']} " \
+            f"({c['console_bytes']:,} bytes)" if "console_bytes" in c else ""
+        w(f"- its final state against the stock boot `{Path(c['b']).name}`: {c['elements_differ']} "
+          f"of {c['elements']:,} state elements differ, host state same {c['host_state_same']}, "
+          f"reference RAM same {c['reference_ram_same']}{con}")
+    if (RES / "fast_decode.json").exists():
+        fd = load("fast_decode.json")
+        w(f"- pure path (one token at a time, the model's argmax fed back), from the booted "
+          f"snapshot, `{fd['cmd']}` typed: the stock decode and lx.fast for "
+          f"{fd['stock_tokens']:,} tokens, streams identical {fd['streams_identical_first_n']}, "
+          f"state elements differing after them {fd['state_elements_differ_after_n']}; lx.fast "
+          f"for {fd['fast_tokens']:,} tokens identical to the reference "
+          f"{fd['fast_same_as_reference']}; {fd['fast_steady_tok_per_s']} tok/s (the stock "
+          f"decode over the 182k-token `{pure['cmd']}` run: {pure['tok_per_s']} tok/s, "
+          f"{fd['fast_steady_tok_per_s'] / pure['tok_per_s']:.1f}x)")
+    if (RES / "pure_boot.json").exists():
+        pb = load("pure_boot.json")
+        w(f"- pure boot, from reset to the shell prompt, the model alone (no reference, no "
+          f"prefill; the proposer's stream only compared with afterwards, chunk by chunk): "
+          f"{pb['tokens']:,} tokens of {pb['reference_tokens']:,}, identical to the reference "
+          f"{pb['same_as_reference']} (first difference: {pb['first_difference']}), in "
+          f"{pb['seconds']} s = {pb['seconds'] / 3600:.2f} h ({pb['tok_per_s']} tok/s, peak "
+          f"{pb['peak_gb']} GB); console matches the reference {pb['console_matches_reference']} "
+          f"({pb['console_bytes']:,} bytes)")
+        if (RES / "pure_boot_compare.json").exists():
+            c = load("pure_boot_compare.json")
+            w(f"- the pure boot's final state against the stock (prefill) boot: "
+              f"{c['elements_differ']:,} of {c['elements']:,} state elements differ, host state "
+              f"same {c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
+            for d in c.get("differences", []):
+                w(f"  - layer {d['layer']} {d['state']} state {d['index']}: pure {d['a']:,.0f}, "
+                  f"prefill {d['b']:,.0f}")
+            if c.get("differences"):
+                w("  - these are a state row's ballast columns, which the circuit sets to "
+                  "2^24 = 16,777,216 (lx/ir.py A_REF): the decode kernel's sum lands on it, the "
+                  "chunked prefill kernel's one fp32 step below; the predictions are the same")
+    if (RES / "fast_boot_compiled.json").exists():
+        fc = load("fast_boot_compiled.json")
+        cb = runs(fc, "boot")[0]
+        w(f"- verify path with the causal conv and silu compiled as well (fp32 products in the "
+          f"stock kernel's tap order, rounded once), boot from reset: 0 wrong of "
+          f"{cb['tokens'] - 1:,} in {cb['seconds']} s ({cb['tok_per_s']:,} tok/s: "
+          f"{cb['tok_per_s'] / mboot['tok_per_s']:.1f}x stock; peak {fc['peak_gb']} GB)")
+        if (RES / "fast_compare_compiled.json").exists():
+            c = load("fast_compare_compiled.json")
+            w(f"- its final state against the stock boot: {c['elements_differ']} of "
+              f"{c['elements']:,} state elements differ, host state same "
+              f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
+    if (RES / "lean_boot.json").exists():
+        lb = load("lean_boot.json")
+        lr = runs(lb, "boot")[0]
+        w("\n## A 22 GiB GPU budget: lx.fast with the chip projections in host memory\n")
+        w("The chip layers' projections (16.15 GB of bf16, 0.08% nonzero) stay in host memory; "
+          "lx.fast holds their nonzero parts on the GPU, beside Qwen's 32 layers and the "
+          "embedding (15.8 GB). Measured on the H100 with PyTorch's allocator capped at "
+          f"{lb['max_gib']} GiB, not on a 24 GB card (whose speed will differ).\n")
+        w(f"- boot from reset (chunk {lb['chunk']}): 0 wrong of {lr['tokens'] - 1:,} in "
+          f"{lr['seconds']} s ({lr['tok_per_s']:,} tok/s); peak allocated {lb['peak_gb']} GB, "
+          f"reserved {lb['peak_reserved_gb']} GB")
+        if (RES / "lean_compare.json").exists():
+            c = load("lean_compare.json")
+            w(f"- its final state against the stock boot: {c['elements_differ']} of "
+              f"{c['elements']:,} state elements differ, host state same "
+              f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
+        if (RES / "lean_chat.json").exists():
+            lc = load("lean_chat.json")
+            for c in lc["chats"]:
+                sh = [e for e in c["events"] if "command" in e]
+                ans = [e["qwen"] for e in c["events"] if "qwen" in e]
+                w(f"- Qwen using the shell, same cap: {len(sh)} command(s), "
+                  f"{sum(e['wrong'] for e in sh)} wrong machine tokens; answer: "
+                  f"{ans[-1] if ans else '(none)'}")
+            w(f"- peak allocated {lc['peak_gb']} GB, reserved {lc['peak_reserved_gb']} GB")
     text = "\n".join(L) + "\n"
     Path(a.out).write_text(text)
     print(text)

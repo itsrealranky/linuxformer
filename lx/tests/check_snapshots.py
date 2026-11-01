@@ -26,12 +26,19 @@ def main():
     A, B = (torch.load(p, weights_only=False) for p in (a.a, a.b))
     res = {"a": a.a, "b": a.b, "layers": len(A["state"]),
            "dtypes": [str(t.dtype) for t in A["state"][0]],
-           "elements": 0, "elements_differ": 0}
-    for sa, sb in zip(A["state"], B["state"]):
-        for x, y in zip(sa, sb):
+           "elements": 0, "elements_differ": 0, "differences": []}
+    for L, (sa, sb) in enumerate(zip(A["state"], B["state"])):
+        for kind, x, y in zip(("conv", "recurrent"), sa, sb):
             assert x.shape == y.shape and x.dtype == y.dtype
             res["elements"] += x.numel()
-            res["elements_differ"] += int(bits(x).ne(bits(y)).sum())
+            ne = bits(x).ne(bits(y))
+            res["elements_differ"] += int(ne.sum())
+            for i in ne.nonzero()[:20 - len(res["differences"]), 0].tolist():
+                at = list(torch.unravel_index(torch.tensor(i), x.shape))
+                res["differences"].append({"layer": L, "state": kind,
+                                           "index": [int(j) for j in at],
+                                           "a": x.reshape(-1)[i].item(),
+                                           "b": y.reshape(-1)[i].item()})
     res["host_state_same"] = all(A[k] == B[k] for k in ("next", "last", "n", "waiting"))
     res["reference_ram_same"] = bytes(A["ref"].ram) == bytes(B["ref"].ram)
     res["tokens"] = A["n"]

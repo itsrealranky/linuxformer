@@ -61,19 +61,27 @@ def type_and_run(m: R.Machine, data: bytes, max_records: int = 30_000_000) -> li
 
 class Linux:
     def __init__(self, merged: bool = False, chunk: int | None = None,
-                 weights: Path | None = None) -> None:
-        """weights: a merge.save() directory (the merged model) instead of building it."""
+                 weights: Path | None = None, fast: bool = False, lean: bool = False) -> None:
+        """weights: a merge.save() directory (the merged model) instead of building it. fast:
+        verify with lx.fast (the same weights, skipping their zeros) instead of the stock
+        forward. lean (with weights; implies fast): the chip layers' projections stay in host
+        memory, lx.fast holding their nonzero parts on the GPU."""
         # prefill memory is mostly the 128 GDN heads' q/k/v per token (~0.65 MB): 64k tokens
         # fit beside the 28 GB chip-only model on an 80 GB card, 32k beside the 32 GB merged one
         merged = merged or weights is not None
         self.weights = weights
-        chunk = chunk or (32768 if merged else 65536)
+        # lean: 15.8 GB of weights on the GPU (Qwen's 12.2, the embedding 3.6), 8k beside them
+        chunk = chunk or (8192 if lean else 32768 if merged else 65536)
         from lx import merge
 
         self.cfg = merge.config() if merged else core.Config()
         t0 = time.time()
         self.c = core.build(self.cfg)
-        if merged:
+        if lean:
+            assert weights is not None, "lean loads a saved checkpoint"
+            self.model, self.info = merge.load(weights, self.c, device="cpu")
+            self.offset = self.info["chip_token_offset"]
+        elif merged:
             self.model, self.info = merge.load(weights, self.c) if weights else \
                 merge.build(self.c)
             self.offset = self.info["chip_token_offset"]
@@ -82,6 +90,17 @@ class Linux:
             self.info = {"hidden": lay.hidden, "circuit": self.c.stats()}
             self.offset = 0
         self.info["params_B"] = round(sum(p.numel() for p in self.model.parameters()) / 1e9, 2)
+        self.fast = None
+        if fast or lean:
+            from lx.fast import Fast, place_lean
+
+            rows = slice(self.offset, self.offset + S.VOCAB) if self.offset else None
+            self.fast = Fast(self.model, self.c.n_layers(), rows)
+            if lean:
+                place_lean(self.model, self.c.n_layers(), "cuda")
+                self.fast.to("cuda").lean = True
+                self.fast.head_block = 2048
+        self.info["fast"], self.info["lean"] = fast or lean, lean
         self.build_s = time.time() - t0
         self.chunk = chunk
         self.s = None
@@ -106,11 +125,13 @@ class Linux:
         """From reset to the shell prompt (or from a saved snapshot of that)."""
         if snapshot and Path(snapshot).exists():
             t0 = time.time()
-            self.s = Session.load(self.c, self.model, snapshot, self.chunk, self.offset)
+            self.s = Session.load(self.c, self.model, snapshot, self.chunk, self.offset,
+                                  self.fast)
             rec = {"what": "boot (snapshot)", "path": str(snapshot), "tokens": self.s.n,
                    "seconds": round(time.time() - t0, 2), "out": b""}
         else:
-            self.s = Session(self.c, self.model, self.reset_machine(), self.chunk, self.offset)
+            self.s = Session(self.c, self.model, self.reset_machine(), self.chunk, self.offset,
+                             self.fast)
             t0 = time.time()
             toks = [S.tok("GO")] + self.s.propose(until=lambda m: m.out.endswith(PROMPT))
             prop = time.time() - t0
@@ -241,12 +262,24 @@ def main():
     ap.add_argument("--chunk", type=int, default=None)
     ap.add_argument("-i", "--interactive", action="store_true")
     ap.add_argument("--pure", default="", help="run this command on the pure path (no reference)")
+    ap.add_argument("--fast", action="store_true", help="verify with lx.fast (zeros skipped)")
+    ap.add_argument("--compile", action="store_true", help="lx.fast with its compiled steps")
+    ap.add_argument("--lean", action="store_true",
+                    help="lx.fast, the chip projections kept in host memory (fits a 24 GB card)")
+    ap.add_argument("--max-gib", type=float, default=None,
+                    help="cap this process's GPU memory (PyTorch's allocator) at this many GiB")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     a.merged = a.merged or bool(a.weights)
     if a.merged and a.snapshot.endswith("boot.pt"):
         a.snapshot = a.snapshot.replace("boot.pt", "boot-merged.pt")
-    lx = Linux(a.merged, a.chunk, Path(a.weights) if a.weights else None)
+    if a.max_gib:
+        torch.cuda.set_per_process_memory_fraction(
+            a.max_gib * 2**30 / torch.cuda.get_device_properties(0).total_memory)
+    lx = Linux(a.merged, a.chunk, Path(a.weights) if a.weights else None, a.fast or a.compile,
+               a.lean)
+    if a.compile:
+        lx.fast.compile = lx.info["compile"] = True
     print(f"{torch.cuda.get_device_name()}: {lx.info['circuit']}, hidden {lx.info['hidden']}, "
           f"{lx.info['params_B']}B parameters ({lx.build_s:.0f}s to build)", flush=True)
     b = lx.boot(Path(a.snapshot))
@@ -275,9 +308,10 @@ def main():
     if a.out:
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         res = {"device": torch.cuda.get_device_name(), "merged": a.merged, **lx.info,
-               "build_s": round(lx.build_s),
+               "build_s": round(lx.build_s), "chunk": lx.chunk,
                "peak_gb": round(torch.cuda.max_memory_allocated() / 1e9, 1),
-               "runs": [_jsonable(r) for r in lx.log]}
+               "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 1e9, 1),
+               "max_gib": a.max_gib, "runs": [_jsonable(r) for r in lx.log]}
         Path(a.out).write_text(json.dumps(res, indent=1))
 
 

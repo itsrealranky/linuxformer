@@ -125,9 +125,18 @@ def main():
     ap.add_argument("--snapshot", default=str(ROOT / "build" / "snapshots" / "boot-merged.pt"))
     ap.add_argument("--weights", default="", help="a merge.save() directory (else built)")
     ap.add_argument("--rehearse", action="store_true")
+    ap.add_argument("--fast", action="store_true", help="verify with lx.fast (zeros skipped)")
+    ap.add_argument("--lean", action="store_true",
+                    help="lx.fast, the chip projections kept in host memory (fits a 24 GB card)")
+    ap.add_argument("--max-gib", type=float, default=None,
+                    help="cap this process's GPU memory (PyTorch's allocator) at this many GiB")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
-    lx = Linux(merged=True, weights=Path(a.weights) if a.weights else None)
+    if a.max_gib:
+        torch.cuda.set_per_process_memory_fraction(
+            a.max_gib * 2**30 / torch.cuda.get_device_properties(0).total_memory)
+    lx = Linux(merged=True, weights=Path(a.weights) if a.weights else None, fast=a.fast,
+               lean=a.lean)
     b = lx.boot(Path(a.snapshot))
     print(f"[{b['what']}: {b['tokens']} tokens in {b['seconds']}s]", flush=True)
     chat = Chat(lx, a.rehearse)
@@ -141,6 +150,8 @@ def main():
         print(f"\nuser: {q}", flush=True)
         res["chats"].append(chat.ask(q))
     res["peak_gb"] = round(torch.cuda.max_memory_allocated() / 1e9, 1)
+    res["peak_reserved_gb"] = round(torch.cuda.max_memory_reserved() / 1e9, 1)
+    res["max_gib"] = a.max_gib
     if a.out:
         Path(a.out).parent.mkdir(parents=True, exist_ok=True)
         Path(a.out).write_text(json.dumps(res, indent=1))
