@@ -1,0 +1,16 @@
+# the versions every result in lx/results was produced with (Python 3.11, CUDA 13)
+torch==2.14.1
+triton==3.8.0
+transformers==5.19.0
+flash-linear-attention==0.5.2
+fla-core==0.5.2
+tokenizers==0.23.3
+safetensors==0.8.0
+huggingface-hub==2.2.0
+einops==0.8.2
+jinja2==3.1.6
+numpy==2.4.6
+# tests/eval_text.py (MMLU), tools/
+pyarrow==26.0.0
+pillow==12.3.0
+matplotlib==3.11.2

@@ -1,0 +1,22 @@
+# fetched or built by scripts/setup.sh
+/models/
+/qwenputer/
+/mini-rv32ima/
+/riscv-tests/
+/data/
+/build/
+/kernel/linux-6.8-rc1/
+/kernel/initramfs.list
+/kernel/build.log
+/userland/busybox-1.36.1/
+/userland/busybox-xip/
+/userland/busybox.config.br
+/ref/qp-doom/
+/ref/qp-linux/
+/ref/lxtrace
+/ref/rvtrace
+/*.log
+__pycache__/
+*.pyc
+.venv/
+/kernel/initramfs-br.list
