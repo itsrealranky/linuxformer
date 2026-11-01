@@ -3,3 +3,8 @@ Third-party components
 
 The MIT license in LICENSE covers this repository's own code. The following are not covered by
 it and keep their own licenses.
+
+ref/lxtrace.c, ref/rvtrace.c
+    This project's (MIT). They are compiled together with mini-rv32ima.h from
+    https://github.com/cnlohr/mini-rv32ima (MIT, Copyright (c) 2022 CNLohr), which is not
+    included here.
