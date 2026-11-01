@@ -9,6 +9,6 @@ ref/lxtrace.c, ref/rvtrace.c
     https://github.com/cnlohr/mini-rv32ima (MIT, Copyright (c) 2022 CNLohr), which is not
     included here.
 
-lx/lx/ir.py, lx/lx/prims.py, lx/lx/graph.py, lx/lx/emit.py
+lx/lx/ir.py, lx/lx/prims.py, lx/lx/graph.py, lx/lx/emit.py, parts of lx/lx/core.py
     Derived from Qwenputer's chipformer, https://github.com/divagr18/qwenputer
     (MIT, Copyright (c) 2026 Divyansh Agrawal).
