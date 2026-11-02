@@ -1,0 +1,11 @@
+{
+  "name": "linuxformer-video",
+  "private": true,
+  "description": "Capture and encode for lx/video/player.html (run by lx/video/render.py)",
+  "engines": {
+    "node": ">=22.20"
+  },
+  "devDependencies": {
+    "hyperframes": "0.8.229"
+  }
+}

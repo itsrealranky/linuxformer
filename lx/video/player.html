@@ -1,0 +1,701 @@
+<!doctype html>
+<!-- The hero video's player: draws frame n from the frames file (lx/video/export_frames.py)
+     and nothing else. lx/video/build.py fills the __PLACEHOLDERS__ (layout, size, the frames,
+     the fonts) into a self-contained HyperFrames composition; HyperFrames seeks it frame by
+     frame (hf-seek) and encodes. Open a built index.html in a browser to scrub it (?f=frame). -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<title>linuxformer · the computer inside the model</title>
+<style>
+/*__FONTS__*/
+html, body { margin: 0; width: __W__px; height: __H__px; overflow: hidden; background: #07090D; }
+#root { position: absolute; inset: 0; }
+#c { position: absolute; left: 0; top: 0; width: __W__px; height: __H__px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="__DURATION__"
+     data-width="__W__" data-height="__H__" data-fps="60" data-no-timeline>
+  <canvas id="c"></canvas>
+</div>
+<script>/*__FRAMES__*/</script>
+<script>
+(() => {
+"use strict";
+const FR = window.FRAMES, M = FR.meta, C = FR.cols, FX = M.facts;
+const LAYOUT = "__LAYOUT__", OFFSET = __OFFSET__, COUNT = __COUNT__, W = __W__, H = __H__;
+const FPS = M.fps;
+const BG = "#07090D", INK = "#F2F4F7", DIM = "#9AA3B2", FAINT = "#5B6475", AMBER = "#FFB020",
+  RED = "#FF4D4D", USED = "#2C3546", RESV = "#141922", NONE = "#3A4352", ROMC = "#3A3020",
+  FREE = "#4A5568", PANEL = "#0E121A";
+const SANS = "LXInter", MONO = "LXMono";
+const NP = M.n_pages, ROMP = M.rom_pages, RAM0 = M.first_ram_page;
+
+const cv = document.getElementById("c");
+const dpr = window.devicePixelRatio || 1;
+cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+const g = cv.getContext("2d");
+
+// --- geometry -------------------------------------------------------------------------------
+const GEO = {
+  "16x9": {
+    cap: { x: 72, y: 104, w: 1190, wb: 1540, big: 64, small: 30, limit: 250 },
+    cnt: { x: 1848, y: 96, size: 30 },
+    map: { x: 72, y: 268, cols: 56, pitch: 18, sq: 15 },
+    side: { x: 1130, y: 268, w: 718 },
+    main: { x: 72, y: 262, w: 1776, h: 566 },
+    regs: { x: 72, y: 848, w: 1776, h: 30 },
+    lay: { x: 72, y: 922, w: 1776, h: 26 },
+    con: { x: 72, y: 994, size: 26, lh: 32, rows: 3, w: 1776 },
+    chat: { x: 1130, y: 452, w: 718, h: 376 },
+    info: { x: 1130, y: 520 },
+  },
+  "9x16": {
+    cap: { x: 60, y: 130, w: 960, big: 60, small: 30, limit: 336 },
+    cnt: { x: 60, y: 420, size: 28 },
+    map: { x: 60, y: 488, cols: 44, pitch: 22, sq: 18 },
+    side: null,
+    main: { x: 40, y: 466, w: 1000, h: 790 },
+    mode: { x: 60, y: 1290, w: 960 },
+    regs: { x: 60, y: 1376, w: 960, h: 30 },
+    lay: { x: 60, y: 1452, w: 960, h: 26 },
+    con: { x: 60, y: 1530, size: 26, lh: 32, rows: 4, w: 960 },
+    chat: { x: 60, y: 1664, w: 960, h: 226 },
+    info: { x: 60, y: 1700 },
+  },
+  "loop": {
+    cap: null,
+    cnt: { x: 1040, y: 60, size: 26 },
+    map: { x: 60, y: 120, cols: 48, pitch: 20, sq: 16 },
+    side: null, main: null, regs: null, lay: null, con: null, chat: null,
+  },
+}[LAYOUT];
+
+// --- helpers --------------------------------------------------------------------------------
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const ease = (x) => { x = clamp(x, 0, 1); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const lerp = (a, b, t) => a + (b - a) * t;
+const commas = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+function b64bytes(s) { const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+const pmCache = new Map();
+function pagemap(i) {
+  if (i == null || i < 0) return null;
+  let a = pmCache.get(i);
+  if (!a) { a = b64bytes(FR.pagemaps[i]); pmCache.set(i, a); }
+  return a;
+}
+function font(w, size, fam) { return `${w} ${size}px ${fam || SANS}`; }
+function text(s, x, y, f, color, align, alpha) {
+  // alpha, when given, is absolute; otherwise the current alpha applies
+  g.font = f; g.fillStyle = color || INK; g.textAlign = align || "left"; g.textBaseline = "alphabetic";
+  const a0 = g.globalAlpha;
+  if (alpha != null) g.globalAlpha = alpha;
+  g.fillText(s, x, y);
+  g.globalAlpha = a0;
+}
+function wrap(s, f, maxW) {
+  g.font = f;
+  const out = [];
+  for (const para of String(s).split("\n")) {
+    const words = para.split(" ");
+    let line = "";
+    for (const w of words) {
+      const t = line ? line + " " + w : w;
+      if (g.measureText(t).width > maxW && line) { out.push(line); line = w; } else line = t;
+    }
+    out.push(line);
+  }
+  return out;
+}
+function para(s, x, y, f, color, maxW, lh, alpha, align) {
+  // wrapped text; returns the baseline after the last line
+  for (const l of wrap(s, f, maxW)) { text(l, x, y, f, color, align, alpha); y += lh; }
+  return y;
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function dashed(x, y, w, h, color, alpha) {
+  g.save(); g.globalAlpha = alpha == null ? 1 : alpha; g.strokeStyle = color || AMBER; g.lineWidth = 2;
+  g.setLineDash([10, 8]); g.strokeRect(x, y, w, h); g.restore();
+}
+function illusTag(x, y, alpha) {
+  text("zoom · illustrative", x, y, font(500, 24), AMBER, "left", alpha);
+}
+
+// --- per-frame lookups ------------------------------------------------------------------------
+function segOf(n) { return M.segments[C.seg[n]]; }
+function pieceOf(n) { return M.pieces[C.piece[n]]; }
+function segTime(n) { return (n - segOf(n).start) / FPS; }
+function pieceTime(n) { return (n - pieceOf(n).start) / FPS; }
+function fades(n, col, len, size) {
+  const a = new Float32Array(size);
+  for (let k = 0; k < len; k++) {
+    const f = n - k; if (f < 0) break;
+    const w = 1 - k / len;
+    const v = C[col][f];
+    if (Array.isArray(v)) { for (const p of v) if (a[p] < w) a[p] = w; }
+    else if (v) { for (let r = 0; r < size; r++) if ((v >>> r) & 1 && a[r] < w) a[r] = w; }
+  }
+  return a;
+}
+
+// --- the RAM map ------------------------------------------------------------------------------
+function mapCells(m) {
+  // (x, y) of each page's square: the ROM block, then the RAM block below it
+  const pos = { rom: [], ram: [] }, P = m.pitch;
+  const romRows = Math.ceil(ROMP / m.cols);
+  const ramY = m.y + 30 + romRows * P + 46;
+  for (let p = 0; p < ROMP; p++) pos.rom.push([m.x + (p % m.cols) * P, m.y + 30 + Math.floor(p / m.cols) * P]);
+  for (let p = RAM0; p < NP; p++) { const i = p - RAM0; pos.ram.push([m.x + (i % m.cols) * P, ramY + 16 + Math.floor(i / m.cols) * P]); }
+  return { pos, ramY, romRows, bottom: ramY + 16 + Math.ceil((NP - RAM0) / m.cols) * P };
+}
+const MC = GEO.map ? mapCells(GEO.map) : null;
+function pageXY(p) { return p >= RAM0 ? MC.pos.ram[p - RAM0] : MC.pos.rom[p]; }
+
+function drawMap(n, alpha, pmOverride) {
+  const m = GEO.map, S = m.sq;
+  g.save(); g.globalAlpha = alpha;
+  text("ROM · kernel code · model.layers.2", m.x, m.y + 18, font(600, 24), DIM);
+  text("RAM · model.layers.7–35", m.x, MC.ramY + 6, font(600, 24), DIM);
+  for (const [x, y] of MC.pos.rom) { g.fillStyle = ROMC; g.fillRect(x, y, S, S); }
+  const pm = pmOverride || pagemap(C.pm[n]);
+  const lit = fades(n, "pages", 30, NP);
+  for (let p = RAM0; p < NP; p++) {
+    const [x, y] = MC.pos.ram[p - RAM0];
+    const code = pm ? pm[p] : 0;
+    if (code === 1) { g.strokeStyle = FREE; g.lineWidth = 1.5; g.strokeRect(x + 0.75, y + 0.75, S - 1.5, S - 1.5); }
+    else if (code === 0) { g.fillStyle = NONE; g.fillRect(x + S * 0.33, y + S * 0.33, S * 0.34, S * 0.34); }
+    else { g.fillStyle = code === 2 ? RESV : USED; g.fillRect(x, y, S, S); }
+  }
+  g.fillStyle = AMBER; g.shadowColor = AMBER;
+  for (let p = RAM0; p < NP; p++) {
+    const w = lit[p]; if (!w) continue;
+    const [x, y] = MC.pos.ram[p - RAM0];
+    g.globalAlpha = alpha * (0.25 + 0.75 * w); g.shadowBlur = 14 * w; g.fillRect(x, y, S, S);
+  }
+  g.shadowBlur = 0;
+  g.restore();
+}
+
+function drawLegend(x, y, alpha, w) {
+  const S = 18, items = [["fill", AMBER, "written now (fades in 0.5 s)"], ["fill", USED, "in use"],
+    ["line", FREE, "free"], ["fill", RESV, "reserved"], ["fill", ROMC, "ROM: kernel code"],
+    ["dot", NONE, "no page entry yet"]];
+  const two = LAYOUT === "9x16";
+  g.save(); g.globalAlpha = alpha;
+  text("1 square = 4 KB of the machine's memory", x, y, font(600, 26), INK);
+  items.forEach(([k, c, s], i) => {
+    const xx = x + (two ? (i % 2) * 460 : 0), yy = y + 24 + (two ? Math.floor(i / 2) : i) * 36;
+    if (k === "fill") { g.fillStyle = c; g.fillRect(xx, yy, S, S); }
+    else if (k === "dot") { g.fillStyle = c; g.fillRect(xx + S * 0.33, yy + S * 0.33, S * 0.34, S * 0.34); }
+    else { g.strokeStyle = c; g.lineWidth = 1.5; g.strokeRect(xx + 0.75, yy + 0.75, S - 1.5, S - 1.5); }
+    text(s, xx + 32, yy + 16, font(500, 24), DIM);
+  });
+  const rows = two ? 3 : items.length;
+  para("in use / free / reserved: the kernel's own page table (struct page), read from the machine's RAM",
+    x, y + 24 + rows * 36 + 20, font(400, 24), FAINT, w || 700, 30);
+  g.restore();
+}
+
+// --- registers, layers, heartbeat, mode --------------------------------------------------------
+function drawRegs(n) {
+  const r = GEO.regs; if (!r) return;
+  const lit = fades(n, "regs", 15, 32);
+  const lw = LAYOUT === "16x9" ? 190 : 0, y = LAYOUT === "16x9" ? r.y : r.y;
+  if (LAYOUT === "16x9") text("registers", r.x, r.y + 23, font(600, 24), DIM);
+  else text("registers x0–x31", r.x, r.y - 10, font(600, 24), DIM);
+  const x0 = r.x + lw, cw = (r.w - lw) / 32;
+  for (let i = 0; i < 32; i++) {
+    g.fillStyle = "#1A2030"; g.fillRect(x0 + i * cw + 2, y, cw - 4, r.h);
+    if (lit[i]) { g.globalAlpha = 0.2 + 0.8 * lit[i]; g.fillStyle = AMBER; g.fillRect(x0 + i * cw + 2, y, cw - 4, r.h); g.globalAlpha = 1; }
+  }
+}
+function drawLayers(n) {
+  const r = GEO.lay; if (!r) return;
+  const lit = fades(n, "layers", 12, 69);
+  const lw = LAYOUT === "16x9" ? 190 : 0, gap = 18;
+  const nc = M.chip_layers, nq = M.qwen_layers;
+  const cw = (r.w - lw - gap) / (nc + nq);
+  const cpuOn = C.cpu[n], qOn = C.qwen[n];
+  const x0 = r.x + lw;
+  if (LAYOUT === "16x9") text("layers", r.x, r.y + 21, font(600, 24), DIM);
+  text(`CPU · model.layers 0–${nc - 1}`, x0, r.y - 10, font(500, 24), cpuOn ? INK : FAINT);
+  text(`Qwen3.5-4B · model.layers ${nc}–${nc + nq - 1}`, x0 + nc * cw + gap, r.y - 10, font(500, 24), qOn ? INK : FAINT);
+  for (let i = 0; i < nc + nq; i++) {
+    const x = x0 + i * cw + (i >= nc ? gap : 0) + 1.5;
+    const on = i < nc ? cpuOn : qOn;
+    g.fillStyle = on ? (i < nc ? "#3B4558" : "#D7DDE6") : "#151A22";
+    g.fillRect(x, r.y, cw - 3, r.h);
+    if (lit[i]) { g.globalAlpha = 0.25 + 0.75 * lit[i]; g.fillStyle = AMBER; g.fillRect(x, r.y, cw - 3, r.h); g.globalAlpha = 1; }
+  }
+}
+function drawHeart(n, x, y, w, h) {
+  // the last 180 frames in which the machine ran; a spike per timer interrupt
+  text("timer interrupts", x, y - 10, font(600, 24), DIM);
+  const pts = [];
+  for (let f = n; f >= 0 && pts.length < 180; f--) if (C.cpu[f]) pts.push(C.irq[f]);
+  const base = y + h * 0.7;
+  g.strokeStyle = "#2A3242"; g.lineWidth = 2; g.beginPath(); g.moveTo(x, base); g.lineTo(x + w, base); g.stroke();
+  g.strokeStyle = AMBER; g.lineWidth = 3; g.lineJoin = "round";
+  for (let k = 0; k < pts.length; k++) {
+    if (!pts[k]) continue;
+    const cx = x + w - (k + 0.5) * (w / 180);
+    g.beginPath(); g.moveTo(cx - 9, base); g.lineTo(cx - 4, base); g.lineTo(cx, y + 2); g.lineTo(cx + 4, base + h * 0.25);
+    g.lineTo(cx + 8, base); g.lineTo(cx + 12, base); g.stroke();
+  }
+  const recent = pts.slice(0, 10).some(Boolean);
+  g.fillStyle = recent ? AMBER : "#2A3242"; g.beginPath(); g.arc(x + w + 16, base, 7, 0, 7); g.fill();
+}
+function drawMode(n, x, y) {
+  const p = C.priv[n];
+  text("CPU mode", x, y + 24, font(600, 24), DIM);
+  const items = [["machine", p === 3], ["user", p === 0]];
+  let xx = x + 130;
+  g.font = font(700, 24, MONO);
+  for (const [s, on] of items) {
+    const w = g.measureText(s).width + 28;
+    rrect(xx, y - 2, w, 36, 18); g.fillStyle = on ? AMBER : "#151A22"; g.fill();
+    text(s, xx + 14, y + 24, font(700, 24, MONO), on ? BG : FAINT);
+    xx += w + 12;
+  }
+}
+
+// --- captions and counters ---------------------------------------------------------------------
+function captionFit(cap, c) {
+  // one line for the big tier if a slightly smaller size allows it; else the largest sizes
+  // (never under 26 px) that keep both tiers above c.limit
+  // (the big tier's first line may run under the pill, which is narrower than the counters)
+  const wb = c.wb || c.w;
+  const smallFit = (s0) => {
+    const a = wrap(cap[1], font(500, s0), c.w), b = wrap(cap[1], font(500, s0 - 2), c.w);
+    return b.length < a.length ? [s0 - 2, b] : [s0, a];
+  };
+  for (let bs = c.big; bs >= c.big - 10; bs -= 2) {
+    const big = wrap(cap[0], font(800, bs), wb), [ss, small] = smallFit(c.small);
+    if (big.length === 1 && c.y + 12 + small.length * ss * 1.3 <= c.limit) return { bs, ss, big, small };
+  }
+  for (let k = 0; k < 4; k++) {
+    const bs = c.big - 6 * k, ss = Math.max(26, c.small - 2 * k);
+    const big = wrap(cap[0], font(800, bs), c.w), small = wrap(cap[1], font(500, ss), c.w);
+    const bottom = c.y + (big.length - 1) * bs * 1.1 + 12 + small.length * ss * 1.3;
+    if (bottom <= c.limit || k === 3) return { bs, ss, big, small };
+  }
+}
+function drawCaption(n) {
+  const c = GEO.cap; if (!c) return;
+  const seg = segOf(n), cap = M.captions[seg.id]; if (!cap || seg.id === "card") return;
+  const a = seg.start === 0 ? 1 : clamp((n - seg.start) / 12, 0, 1);
+  const { bs, ss, big, small } = captionFit(cap, c);
+  let y = c.y;
+  big.forEach((l, i) => { text(l, c.x, y, font(800, bs), INK, "left", a); if (i < big.length - 1) y += bs * 1.1; });
+  y += 12 + ss * 1.05;
+  small.forEach((l) => { text(l, c.x, y, font(500, ss), DIM, "left", a); y += ss * 1.3; });
+}
+function drawCounters(n) {
+  const c = GEO.cnt; if (!c || segOf(n).id === "card") return;
+  const tok = `tokens: ${commas(C.tok[n])} · wrong: ${FX.total_wrong ?? FX.boot_wrong}`;
+  const sp = M.speeds[C.speed[n]] || "";
+  const f = font(500, c.size, MONO);
+  if (LAYOUT === "9x16") {
+    pill("model alone", c.x, c.y - 66, "left");
+    text(tok, c.x, c.y, f, INK); text(sp, c.x + 960, c.y, f, AMBER, "right");
+    return;
+  }
+  pill("model alone", c.x, c.y - 40, "right");
+  text(tok, c.x, c.y + 44, f, INK, "right");
+  text(sp, c.x, c.y + 88, f, AMBER, "right");
+}
+function pill(s, x, y, align) {
+  g.font = font(700, 24, MONO);
+  const w = g.measureText(s.toUpperCase()).width + 30, xx = align === "right" ? x - w : x;
+  rrect(xx, y, w, 38, 19); g.strokeStyle = AMBER; g.lineWidth = 2; g.stroke();
+  text(s.toUpperCase(), xx + 15, y + 27, font(700, 24, MONO), AMBER);
+}
+
+// --- console ---------------------------------------------------------------------------------
+function conRows(n) { return M.console[LAYOUT][C["con" + LAYOUT][n]] || []; }
+function drawConsole(n) {
+  const c = GEO.con; if (!c) return;
+  const rows = conRows(n);
+  g.fillStyle = PANEL; g.fillRect(c.x - 16, c.y - c.lh + 2, (LAYOUT === "16x9" ? 1776 : 960) + 32, c.lh * c.rows + 14);
+  for (let i = 0; i < c.rows; i++) {
+    const s = rows[rows.length - c.rows + i];
+    if (s) text(s, c.x, c.y + i * c.lh, font(400, c.size, MONO), i === c.rows - 1 ? INK : "#C9D0DB");
+  }
+}
+function consoleWordBox(n, word) {
+  const c = GEO.con, rows = conRows(n);
+  g.font = font(400, c.size, MONO);
+  const cw = g.measureText("M").width;
+  for (let i = 0; i < c.rows; i++) {
+    const s = rows[rows.length - c.rows + i] || "";
+    const k = s.indexOf(word + " version");
+    if (k >= 0) return { x: c.x + k * cw, y: c.y + i * c.lh - c.size * 0.82, w: word.length * cw, h: c.size * 1.08 };
+  }
+  return null;
+}
+
+// --- Qwen's chat -------------------------------------------------------------------------------
+const TAG = /(<\/?tool_call>|<function=[^>]*>|<\/function>|<parameter=[^>]*>|<\/parameter>)/;
+function chatLines(n, width) {
+  // [text, font, color] lines: the question, then Qwen's replies as far as they have streamed
+  const out = [], seg = segOf(n), sf = font(400, 24), mf = font(400, 24, MONO), tf = font(400, 24, MONO);
+  wrap("You: " + M.question, font(500, 24), width).forEach((l) => out.push([l, font(500, 24), DIM]));
+  out.push(["", sf, INK]);
+  const [k, chars] = C.chat[n];
+  for (let r = 0; r <= k; r++) {
+    const full = M.replies[r].text, s = r < k ? full : full.slice(0, chars);
+    if (!s) continue;
+    out.push([`Qwen (${r === k && C.qwen[n] ? C.qtok[n] : M.replies[r].tokens} tokens):`, font(700, 24), AMBER]);
+    let inCode = false;
+    for (const part of s.split(TAG)) {
+      if (!part) continue;
+      if (TAG.test(part)) { inCode = part.startsWith("<parameter") ? true : part.startsWith("</parameter") ? false : inCode; out.push([part, tf, FAINT]); continue; }
+      for (const ln of part.split("\n")) {
+        if (!ln.trim()) continue;
+        if (inCode) { out.push([ln, mf, INK]); continue; }
+        // markdown **bold** in Qwen's prose: shown bold, without the markers
+        let plain = "", spans = [], pos = 0;
+        ln.split("**").forEach((p, j) => { if (j % 2) spans.push([plain.length, plain.length + p.length]); plain += p; });
+        for (const l of wrap(plain, sf, width)) {
+          const s0 = Math.max(pos, plain.indexOf(l, pos)); pos = s0 + l.length;
+          out.push([l, sf, INK, spans.map(([a, b]) => [a - s0, b - s0]).filter(([a, b]) => b > 0 && a < l.length)]);
+        }
+      }
+    }
+    out.push(["", sf, INK]);
+  }
+  return out;
+}
+function drawChat(n, a) {
+  const c = GEO.chat; if (!c) return;
+  g.save(); g.globalAlpha = a;
+  rrect(c.x - 18, c.y - 14, c.w + 36, c.h + 28, 14); g.fillStyle = PANEL; g.fill();
+  g.beginPath(); g.rect(c.x - 18, c.y - 14, c.w + 36, c.h + 28); g.clip();
+  const lines = chatLines(n, c.w), lh = 30, fit = Math.floor(c.h / lh);
+  const show = lines.slice(Math.max(0, lines.length - fit));
+  show.forEach(([s, f, col, spans], i) => {
+    const y = c.y + 22 + i * lh;
+    if (!spans || !spans.length) { text(s, c.x, y, f, col, "left", a); return; }
+    const bf = font(700, 24);
+    let x = c.x, at = 0;
+    for (const [s0, s1] of spans.map(([p, q]) => [Math.max(0, p), Math.min(s.length, q)]).concat([[s.length, s.length]])) {
+      const plain = s.slice(at, s0), bold = s.slice(s0, s1);
+      g.font = f; text(plain, x, y, f, col, "left", a); x += g.measureText(plain).width;
+      g.font = bf; text(bold, x, y, bf, AMBER, "left", a); x += g.measureText(bold).width;
+      at = s1;
+    }
+  });
+  g.restore();
+}
+
+// --- the zoom: console word -> page -> layer / head -> row -> bits -> "Linux" -----------------
+let heat = null;
+function heatCanvas() {
+  if (heat) return heat;
+  const z = M.zoom, [nh, nr, nc] = z.classes_shape, cls = b64bytes(z.classes);
+  const cvs = document.createElement("canvas"); cvs.width = nc; cvs.height = nr * nh;
+  const ctx = cvs.getContext("2d"), img = ctx.createImageData(nc, nr * nh);
+  const col = [[13, 17, 24], [255, 176, 32], [232, 236, 242]];
+  for (let i = 0; i < nh * nr * nc; i++) {
+    const v = (cls[i >> 2] >> ((i & 3) * 2)) & 3, c = col[v] || [255, 0, 255];
+    img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  heat = cvs; return heat;
+}
+function heatRects(R, top) {
+  // 8 value heads side by side (16:9) or 4 x 2 (9:16), below the breadcrumb
+  const out = [];
+  if (LAYOUT === "16x9") {
+    const cw = 1.55, rh = 1.42, gap = 22, w = 128 * cw, total = 8 * w + 7 * gap, x0 = R.x + (R.w - total) / 2;
+    for (let i = 0; i < 8; i++) out.push({ x: x0 + i * (w + gap), y: top + 36, w, h: 256 * rh });
+  } else {
+    const cw = 1.7, rh = 0.98, gap = 22, w = 128 * cw, x0 = R.x + (R.w - (4 * w + 3 * gap)) / 2;
+    for (let i = 0; i < 8; i++) out.push({ x: x0 + (i % 4) * (w + gap), y: top + 36 + Math.floor(i / 4) * (256 * rh + 50), w, h: 256 * rh });
+  }
+  return out;
+}
+function zoomCover(n) {
+  // how much the zoomed-in view covers the main band (0..1)
+  if (segOf(n).id !== "zoom") return 0;
+  const t = segTime(n);
+  return clamp(ease((t - 2.0) / 0.4), 0, 1) * (1 - ease((t - 9.3) / 0.3));
+}
+function breadcrumb(R, crumbs, t) {
+  // the address map's path, lit as the zoom reaches each level; returns the bottom
+  const size = LAYOUT === "16x9" ? 28 : 26, f = font(600, size, MONO);
+  g.font = f;
+  let x = R.x, y = R.y + 34;
+  crumbs.forEach(([t0, s], i) => {
+    const w = g.measureText(s).width, sep = i < crumbs.length - 1 ? g.measureText(" › ").width : 0;
+    if (x + w > R.x + R.w) { x = R.x; y += size + 10; }
+    const on = t >= t0;
+    text(s, x, y, f, on ? (s.startsWith('"') ? AMBER : INK) : "#252C3A");
+    if (sep) text(" › ", x + w, y, f, on ? DIM : "#252C3A");
+    x += w + sep;
+  });
+  return y;
+}
+function drawZoom(n) {
+  const z = M.zoom, t = segTime(n), R = GEO.main;
+  const page = z.page, [px, py] = pageXY(page), S = GEO.map.sq;
+  const vh0 = z.value_heads[0], hv = z.word_value_heads;
+  // breadcrumb: the address map's path, lit as the zoom reaches each level
+  const crumbs = [[0.0, FX.zoom_address], [0.6, `page ${page}`], [2.2, `${FX.zoom_layer}`],
+    [2.6, `key head ${z.key_head}`], [4.4, `value heads ${hv[0]}–${hv[hv.length - 1]} · row ${z.row}`],
+    [6.0, "bits → bytes"], [8.2, `"${z.word}"`]];
+  // map, fading out while zoomed in
+  const zin = ease((t - 1.2) / 1.0), zout = ease((t - 9.3) / 0.7);
+  const mapA = 1 - zin + zout;
+  if (mapA > 0.01) drawMap(n, clamp(mapA, 0, 1));
+  if (t >= 1.2 && t < 2.4) {
+    // illustrative: the square grows into the view
+    const k = ease((t - 1.2) / 1.0);
+    dashed(lerp(px, R.x, k), lerp(py, R.y, k), lerp(S, R.w, k), lerp(S, R.h, k), AMBER, 1);
+    illusTag(R.x + 8, R.y - 12, 1 - ease((t - 2.1) / 0.3));
+  }
+  if (t >= 9.3) {
+    const k = ease((t - 9.3) / 0.7);
+    dashed(lerp(R.x, px, k), lerp(R.y, py, k), lerp(R.w, S, k), lerp(R.h, S, k), AMBER, 1);
+    illusTag(R.x + 8, R.y - 12, 1 - k);
+  }
+  if (t < 2.0 || t >= 9.6) return;
+  const A = clamp(ease((t - 2.0) / 0.4), 0, 1) * (1 - ease((t - 9.3) / 0.3));
+  g.save(); g.globalAlpha = A;
+  g.fillStyle = BG; g.fillRect(R.x - 8, R.y - 4, R.w + 16, R.h + 8);
+  const top = breadcrumb(R, crumbs, t) + 30;
+  const rects = heatRects(R, top), H8 = heatCanvas();
+  const tc = 1 - ease((t - 4.4) / 0.4);   // the heads give way to the row's values
+  if (tc > 0) {
+    g.globalAlpha = A * tc; g.imageSmoothingEnabled = false;
+    rects.forEach((r, i) => {
+      g.drawImage(H8, 0, i * 256, 128, 256, r.x, r.y, r.w, r.h);
+      const on = hv.includes(vh0 + i);
+      text(`value head ${vh0 + i}`, r.x, r.y - 8, font(on && t > 4.4 ? 700 : 500, 24), on && t > 4.4 ? AMBER : DIM);
+    });
+    // page = rows page_rows of these heads; the row
+    const [r0, r1] = z.page_rows;
+    if (t > 2.6) rects.forEach((r) => dashed(r.x - 3, r.y + r.h * r0 / 256 - 2, r.w + 6, r.h * (r1 - r0 + 1) / 256 + 4, INK, 0.5 * A * tc));
+    if (t > 3.6) rects.forEach((r) => { g.fillStyle = AMBER; g.globalAlpha = A * tc * ease((t - 3.6) / 0.4); g.fillRect(r.x - 6, r.y + r.h * z.row / 256 - 1, r.w + 12, Math.max(3, r.h / 256 + 2)); });
+    g.globalAlpha = A;
+    if (t < 4.4) {
+      const last = rects[rects.length - 1], by = last.y + last.h + 34;
+      const y2 = para(`page ${page} = rows ${r0}–${r1} of these 8 heads (dashed) · columns 0–1: ballast, 2²⁴ (white) · columns 2–33: the bits, 128 = 1 (amber)`, R.x, by, font(500, 24), DIM, R.w, 30, A * ease((t - 2.6) / 0.4));
+      para(`each head: 256 rows × 128 columns of fp32 in the model's Gated DeltaNet state`, R.x, y2, font(500, 24), FAINT, R.w, 30, A * ease((t - 2.8) / 0.4));
+    }
+  }
+  if (t >= 4.4) drawRowTable(R, t, A, top);
+  g.restore();
+}
+function zoomOverlay(n) {
+  // over the console: the word, a line to the page square that holds it, what that page is
+  const z = M.zoom, t = segTime(n);
+  if (segOf(n).id !== "zoom" || t >= 1.4) return;
+  const page = z.page, [px, py] = pageXY(page), S = GEO.map.sq;
+  const box = consoleWordBox(n, z.word), a = ease(t / 0.4), out = 1 - ease((t - 1.1) / 0.3);
+  g.save();
+  if (box) {
+    g.strokeStyle = AMBER; g.lineWidth = 3; g.globalAlpha = a * out;
+    rrect(box.x - 6, box.y - 4, box.w + 12, box.h + 8, 6); g.stroke();
+    const k = ease((t - 0.25) / 0.5);
+    g.setLineDash([8, 8]); g.beginPath(); g.moveTo(box.x + box.w / 2, box.y - 6);
+    g.lineTo(lerp(box.x + box.w / 2, px + S / 2, k), lerp(box.y - 6, py + S + 4, k)); g.stroke(); g.setLineDash([]);
+  }
+  if (t >= 0.6) {
+    const r = 6 + 10 * (1 - ease((t - 0.6) / 0.4));
+    g.globalAlpha = out; g.strokeStyle = AMBER; g.lineWidth = 3; g.strokeRect(px - r, py - r, S + 2 * r, S + 2 * r);
+    const I = GEO.info, ia = ease((t - 0.6) / 0.3) * out, iw = GEO.chat.w;
+    const y2 = para(`The kernel keeps this line in its log buffer: ${FX.zoom_address}, page ${page}.`, I.x, I.y, font(600, 28), INK, iw, 36, ia);
+    para(`The model wrote it there at token ${commas(z.written_at_tokens[0])}.`, I.x, y2 + 4, font(500, 26), DIM, iw, 34, ia);
+  }
+  g.restore();
+}
+function drawRowTable(R, t, A, top0) {
+  // the row's raw values for the heads holding the word, 8 bits a line = a byte
+  const z = M.zoom, k0 = z.offset_in_row, vh0 = z.value_heads[0];
+  const heads = z.word_value_heads, a = ease((t - 4.6) / 0.6);
+  const cw = LAYOUT === "16x9" ? 58 : 52, rh = LAYOUT === "16x9" ? 46 : 42;
+  const blockW = 8 * cw + 230, gapX = 70;
+  const startX = LAYOUT === "16x9" ? R.x + (R.w - (2 * blockW + gapX)) / 2 : R.x + (R.w - blockW) / 2;
+  const top = top0 + (LAYOUT === "16x9" ? 70 : 40);
+  const note = 1 - ease((t - 8.0) / 0.3);
+  let order = 0;
+  heads.forEach((vh, hi) => {
+    const bx = LAYOUT === "16x9" ? startX + hi * (blockW + gapX) : startX;
+    const by = LAYOUT === "16x9" ? top : top + hi * (4 * rh + 140);
+    const x = vh - vh0, raw = z.raw[x];
+    g.globalAlpha = A * a;
+    text(`${FX.zoom_layer} · value head ${vh} · row ${z.row}`, bx, by, font(700, 26), AMBER);
+    text(`columns 0–1: ${commas(raw[0])}, ${commas(raw[1])} (ballast, 2²⁴)`, bx, by + 34, font(500, 24, MONO), DIM);
+    for (let b = 0; b < 4; b++) {
+      const yy = by + 60 + b * rh;
+      let val = 0;
+      for (let i = 0; i < 8; i++) {
+        const v = raw[2 + b * 8 + i], on = v === z.a_bit;
+        if (on) val |= 1 << i;
+        g.fillStyle = on ? "#3A2A08" : "#121722"; g.fillRect(bx + i * cw, yy, cw - 4, rh - 6);
+        text(String(v), bx + i * cw + (cw - 4) / 2, yy + rh - 18, font(on ? 700 : 400, 24, MONO), on ? AMBER : FAINT, "center");
+      }
+      const idx = x * 4 + b, inWord = idx >= k0 && idx < k0 + z.word.length;
+      const ta = clamp(ease((t - 6.0 - order * 0.12) / 0.3), 0, 1);
+      order += 1;
+      const ch = val >= 32 && val < 127 ? String.fromCharCode(val) : "·";
+      g.globalAlpha = A * ta;
+      text(`→ 0x${val.toString(16).toUpperCase().padStart(2, "0")}`, bx + 8 * cw + 14, yy + rh - 18, font(500, 24, MONO), DIM);
+      text(ch === " " ? "␣" : ch, bx + 8 * cw + 150, yy + rh - 14, font(800, 34, MONO), inWord ? AMBER : FAINT);
+      g.globalAlpha = A * a;
+    }
+    text(`bit i of a byte is column 2 + 8·byte + i (LSB first)`, bx, by + 60 + 4 * rh + 22, font(400, 24), FAINT, "left", A * a * note);
+  });
+  if (t >= 8.2) {
+    const ta = ease((t - 8.2) / 0.5);
+    const yy = LAYOUT === "16x9" ? R.y + R.h - 40 : R.y + R.h - 10;
+    g.globalAlpha = A * ta;
+    text(`"${z.word}"`, R.x + R.w / 2, yy - 46, font(800, LAYOUT === "16x9" ? 72 : 64), AMBER, "center");
+    text(`written by the model at token ${commas(z.written_at_tokens[0])} · read here at token ${commas(z.tokens)}`, R.x + R.w / 2, yy, font(500, 26), DIM, "center");
+  }
+  g.globalAlpha = 1;
+}
+
+// --- the crash: no free 512 KB block ------------------------------------------------------------
+let crashPM = null;
+function drawCrash(n) {
+  const cr = M.crash, piece = pieceOf(n), seg = segOf(n);
+  const pieces = M.pieces.filter((p) => p.segment === "crash");
+  const first = pieces[0], t = (n - first.start) / FPS;
+  if (!crashPM) crashPM = b64bytes(cr.pagemap);
+  const inFirst = piece === first && piece.kind === "pause";
+  drawMap(n, 1, inFirst ? crashPM : null);
+  if (inFirst) {
+    const k = Math.floor(t / 0.2);
+    const S = GEO.map.sq;
+    if (k < cr.order7_windows.length) {
+      for (let p = k * 128; p < Math.min(NP, (k + 1) * 128); p++) {
+        const [x, y] = pageXY(p); g.strokeStyle = RED; g.lineWidth = 2; g.strokeRect(x - 1, y - 1, S + 2, S + 2);
+      }
+      const lbl = `512 KB block ${k + 1} of ${cr.order7_windows.length}: ${cr.order7_windows[k]} of 128 pages free`;
+      text(lbl, GEO.map.x, MC.bottom + 34, font(600, 26), RED);
+      text("illustrative scan · counts from the kernel's page table", GEO.map.x, MC.bottom + 66, font(500, 24), FAINT);
+    } else {
+      const fl = 1 - ease((t - 1.8) / 0.5);
+      g.fillStyle = RED; g.globalAlpha = 0.25 * fl; g.fillRect(0, 0, W, H); g.globalAlpha = 1;
+      text(`no free 512 KB block · largest free piece ${FX.crash_largest_kb}`, GEO.map.x, MC.bottom + 34, font(700, 26), RED);
+    }
+  }
+  drawCrashPanel(n, t);
+}
+function drawCrashPanel(n, t) {
+  const cr = M.crash, a = ease(t / 0.4);
+  const P = LAYOUT === "16x9" ? { x: 1110, y: 450, w: 738 } : { x: 60, y: 1660, w: 960 };
+  g.save(); g.globalAlpha = a;
+  rrect(P.x - 18, P.y - 14, P.w + 36, (LAYOUT === "16x9" ? 378 : 230) + 28, 14); g.fillStyle = PANEL; g.fill();
+  let y = P.y + 24;
+  text(`seq needs ${commas(cr.request_bytes)} bytes → one ${FX.crash_need_kb} block (order ${cr.order})`, P.x, y, font(600, 24), INK); y += 38;
+  text(`free: ${FX.crash_free_kb} in ${Object.values(cr.histogram_kb_kernel_log).reduce((s, v) => s + v, 0)} pieces`, P.x, y, font(600, 24), INK); y += 18;
+  const sizes = Object.keys(cr.histogram_kb_kernel_log).map(Number).sort((p, q) => p - q);
+  const all = [4, 8, 16, 32, 64, 128, 256, 512];
+  const bw = (P.w - 20) / all.length, maxN = Math.max(...Object.values(cr.histogram_kb_kernel_log));
+  const bh = LAYOUT === "16x9" ? 120 : 70;
+  all.forEach((s, i) => {
+    const v = cr.histogram_kb_kernel_log[String(s)] || 0, h = v / maxN * bh;
+    const x = P.x + i * bw;
+    g.fillStyle = s >= 512 ? RED : AMBER; g.globalAlpha = a * (s >= 512 ? 0.9 : 0.85);
+    if (v) g.fillRect(x + 6, y + 12 + bh - h, bw - 12, h);
+    else if (s >= 512) { g.strokeStyle = RED; g.setLineDash([6, 6]); g.strokeRect(x + 6, y + 12, bw - 12, bh); g.setLineDash([]); }
+    g.globalAlpha = a;
+    text(String(v), x + bw / 2, y + 6 + bh - h, font(700, 24, MONO), s >= 512 ? RED : INK, "center");
+    text(s >= 1024 ? `${s / 1024}M` : `${s}K`, x + bw / 2, y + bh + 40, font(500, 24, MONO), s >= 512 ? RED : DIM, "center");
+  });
+  y += bh + 74;
+  if (LAYOUT === "16x9") {
+    text("free pieces by size: the kernel's report = the page table", P.x, y, font(500, 24), FAINT); y += 30;
+    text(`(machine's RAM at token ${commas(cr.tokens)})`, P.x, y, font(500, 24), FAINT); y += 40;
+    const w = cr.order7_windows;
+    para(`a 512 KB block must start on a 512 KB boundary: the fullest of the ${w.length} has ${Math.max(...w)} of 128 pages free`,
+      P.x, y, font(500, 24), DIM, P.w, 30);
+  }
+  g.restore();
+}
+
+// --- the end card -----------------------------------------------------------------------------
+function drawCard(n) {
+  const t = segTime(n), cap = M.captions.card;
+  const lines = cap[0].split(" · ");
+  const size = LAYOUT === "16x9" ? 70 : 64, lh = size * 1.25;
+  const y0 = H / 2 - (lines.length * lh) / 2 + size * 0.4 - 30;
+  // the first line is up from the card's first frame (no frame of the video is empty)
+  lines.forEach((l, i) => text(l, W / 2, y0 + i * lh, font(800, size), i === 1 ? AMBER : INK, "center", i === 0 ? 1 : ease((t - i * 0.15) / 0.4)));
+  wrap(cap[1], font(500, 28), W - 160).forEach((l, i) =>
+    text(l, W / 2, y0 + lines.length * lh + 40 + i * 38, font(500, 28), DIM, "center", ease((t - 0.8) / 0.4)));
+}
+
+// --- the frame --------------------------------------------------------------------------------
+function renderFrame(i) {
+  const n = clamp(OFFSET + i, 0, M.frames - 1);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+  const seg = segOf(n).id;
+  if (LAYOUT === "loop") {
+    drawMap(n, 1);
+    text("Linux booting inside the model's state · 1 square = 4 KB", 60, 60, font(700, 28), INK);
+    text(`tokens: ${commas(C.tok[n])} · wrong: ${FX.boot_wrong} · ${M.speeds[C.speed[n]]} · model alone`, 60, 96, font(500, 24, MONO), DIM);
+    return;
+  }
+  if (seg === "card") { drawCard(n); return; }
+  drawCaption(n);
+  drawCounters(n);
+  if (seg === "zoom") drawZoom(n);
+  else if (seg === "crash") drawCrash(n);
+  else drawMap(n, 1);
+  if (GEO.side) {
+    g.save(); g.globalAlpha = 1 - zoomCover(n);
+    drawMode(n, GEO.side.x, GEO.side.y);
+    drawHeart(n, GEO.side.x, GEO.side.y + 90, GEO.side.w - 40, 60);
+    g.restore();
+  } else {
+    g.save(); g.globalAlpha = 1 - zoomCover(n);
+    drawMode(n, GEO.mode.x, GEO.mode.y - 6);
+    drawHeart(n, GEO.mode.x + 520, GEO.mode.y - 4, 400, 40);
+    g.restore();
+  }
+  const qwenOn = M.segments.findIndex((s) => s.id === "qwen");
+  const chatA = qwenOn >= 0 && C.seg[n] >= qwenOn ? clamp((n - M.segments[qwenOn].start) / 12, 0, 1) : 0;
+  if (seg !== "crash" && seg !== "zoom") {
+    if (chatA > 0) drawChat(n, chatA);
+    else drawLegend(GEO.chat.x, GEO.chat.y + 10, 1, GEO.chat.w);
+  }
+  drawRegs(n);
+  drawLayers(n);
+  drawConsole(n);
+  zoomOverlay(n);
+}
+
+window.renderFrame = renderFrame;
+window.__lx = { GEO, M, C, captionFit, font, wrap, segOf, ctx: g };
+const ready = document.fonts && document.fonts.load ? Promise.all([
+  document.fonts.load(font(400, 24)), document.fonts.load(font(500, 24)), document.fonts.load(font(600, 24)),
+  document.fonts.load(font(700, 24)), document.fonts.load(font(800, 24)),
+  document.fonts.load(font(400, 24, MONO)), document.fonts.load(font(500, 24, MONO)), document.fonts.load(font(700, 24, MONO)),
+]) : Promise.resolve();
+window.__hf = window.__hf || {}; window.__hf.buildReady = window.__hf.buildReady || {};
+window.__hf.buildReady.fonts = ready;
+let fontsOk = false;
+ready.then(() => { fontsOk = true; renderFrame(lastT); });
+let lastT = 0;
+const q = new URLSearchParams(location.search).get("f");
+if (q != null) lastT = Number(q);
+window.addEventListener("hf-seek", (e) => {
+  lastT = Math.round(e.detail.time * FPS);
+  if (!fontsOk) { e.detail.waitUntil && e.detail.waitUntil(ready.then(() => renderFrame(lastT))); return; }
+  renderFrame(lastT);
+});
+renderFrame(lastT);
+})();
+</script>
+</body>
+</html>

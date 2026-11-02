@@ -36,6 +36,15 @@ lx/lx/ir.py, lx/lx/prims.py, lx/lx/graph.py, lx/lx/emit.py, parts of lx/lx/core.
     Derived from Qwenputer's chipformer, https://github.com/divagr18/qwenputer
     (MIT, Copyright (c) 2026 Divyansh Agrawal).
 
+lx/video/fonts/
+    Inter (Copyright (c) 2016 The Inter Project Authors, https://github.com/rsms/inter) and
+    JetBrains Mono (Copyright 2020 The JetBrains Mono Project Authors,
+    https://github.com/JetBrains/JetBrainsMono), SIL Open Font License 1.1 (Inter-OFL.txt,
+    JetBrainsMono-OFL.txt). lx/video/build.py embeds them in the video's player page.
+
+HyperFrames (https://github.com/heygen-com/hyperframes), pinned in lx/video/package.json
+    Apache-2.0, by HeyGen. Not included here; installed by npm to capture and encode the video.
+
 Qwen3.5-4B (https://huggingface.co/Qwen/Qwen3.5-4B, revision
 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a)
     Apache-2.0, by the Qwen team. Not included here. A merged checkpoint containing its
