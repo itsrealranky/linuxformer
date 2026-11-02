@@ -1,0 +1,35 @@
+#!/bin/bash
+# Minimal busybox (FLAT, no-MMU, uClibc) for the in-weights machine's initramfs.
+# Usage: build_busybox.sh <busybox-src> [extra CONFIG_ names to enable...]
+set -euo pipefail
+SRC=$1; shift
+BR=$(cd "$(dirname "$0")" && pwd)/../mini-rv32ima/buildroot/output
+export PATH=$BR/host/bin:$PATH
+# the banner's date and the FLAT header's build date (elf2flt), for a reproducible binary
+export SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-1793466309}  # 2026-10-31 17:05:09 UTC
+CROSS=riscv32-buildroot-linux-uclibc-
+ELF2FLT=${ELF2FLT:--Wl,-elf2flt=-r}
+cd "$SRC"
+make allnoconfig >/dev/null
+on() { for s in "$@"; do sed -i "s/^# CONFIG_$s is not set$/CONFIG_$s=y/" .config; done; }
+on NOMMU STATIC LFS LONG_OPTS \
+   HUSH SH_IS_HUSH HUSH_BASH_COMPAT HUSH_INTERACTIVE HUSH_TICK HUSH_IF HUSH_LOOPS HUSH_CASE HUSH_FUNCTIONS HUSH_LOCAL HUSH_RANDOM_SUPPORT HUSH_EXPORT HUSH_READONLY HUSH_UNSET HUSH_KILL HUSH_WAIT HUSH_TRAP HUSH_TYPE HUSH_READ HUSH_SET HUSH_ECHO HUSH_PRINTF HUSH_TEST HUSH_EXPORT_N HUSH_MODE_X HUSH_BASH_SOURCE_CURDIR \
+   FEATURE_SH_MATH FEATURE_SH_MATH_64 \
+   FEATURE_EDITING FEATURE_TAB_COMPLETION \
+   CAT ECHO FEATURE_FANCY_ECHO PRINTF LS FEATURE_LS_FILETYPES FEATURE_LS_FOLLOWLINKS \
+   FEATURE_LS_RECURSIVE FEATURE_LS_WIDTH FEATURE_LS_SORTFILES FEATURE_LS_TIMESTAMPS \
+   FEATURE_LS_USERNAME MKDIR RMDIR RM CP MV TOUCH LN CHMOD WC HEAD FEATURE_FANCY_HEAD TAIL \
+   FEATURE_FANCY_TAIL GREP FEATURE_GREP_CONTEXT SED SORT UNIQ CUT TR EXPR EXPR_MATH_SUPPORT_64 \
+   TEST TEST1 TEST2 TRUE FALSE SEQ SLEEP DATE UNAME PWD ENV BASENAME DIRNAME YES \
+   FREE UPTIME DMESG POWEROFF REBOOT HALT KILL CLEAR WHICH \
+   TEE \
+   "$@"
+sed -i "s/^CONFIG_SH_IS_NONE=y/# CONFIG_SH_IS_NONE is not set/" .config
+sed -i 's/^CONFIG_FEATURE_EDITING_MAX_LEN=.*/CONFIG_FEATURE_EDITING_MAX_LEN=256/' .config
+yes "" | make oldconfig >/dev/null || true
+make -j16 CC=${CROSS}gcc AR=${CROSS}gcc-ar NM=${CROSS}gcc-nm RANLIB=${CROSS}gcc-ranlib \
+  CROSS_COMPILE=$CROSS ARCH=riscv SKIP_STRIP=y \
+  CFLAGS="-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Os -g0 -fPIC $ELF2FLT" \
+  EXTRA_LDFLAGS="-s $ELF2FLT" busybox >/dev/null
+make busybox.links >/dev/null
+ls -la busybox

@@ -1,0 +1,70 @@
+Subject: [PATCH] riscv: options to skip the misaligned access probe and keep init text
+
+For a machine whose instructions are expensive and whose kernel text is fetched from a
+read-only copy (the linuxformer CPU compiled into a language model's weights):
+
+  RISCV_SKIP_UNALIGNED_PROBE  report misaligned accesses as slow instead of timing them
+                              (the probe busy-waits for several jiffies)
+  RISCV_KEEP_INIT_TEXT        free only .init.data after boot, unpoisoned, so the kernel's
+                              text is never written after load
+
+Applies on Linux 6.8-rc1 after 0001 and 0002.
+
+---
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -455,6 +455,18 @@
+ 	  Specify the maximum number of NUMA Nodes available on the target
+ 	  system.  Increases memory reserved to accommodate various tables.
+ 
++config RISCV_SKIP_UNALIGNED_PROBE
++	bool "Skip the boot-time misaligned access speed probe"
++	help
++	  Report misaligned accesses as slow instead of timing them at boot.
++	  The probe busy-waits for several jiffies.
++
++config RISCV_KEEP_INIT_TEXT
++	bool "Keep .init.text after boot; free only .init.data, unpoisoned"
++	help
++	  The kernel's text, init text included, is then never written after
++	  load, so a machine may fetch it from a read-only copy.
++
+ config RISCV_ALTERNATIVE
+ 	bool
+ 	depends on !XIP_KERNEL
+diff --git a/arch/riscv/kernel/cpufeature.c b/arch/riscv/kernel/cpufeature.c
+--- a/arch/riscv/kernel/cpufeature.c
++++ b/arch/riscv/kernel/cpufeature.c
+@@ -722,6 +722,17 @@
+ 	if (check_unaligned_access_emulated(cpu))
+ 		return 0;
+ 
++	/*
++	 * The probe below busy-waits for several jiffies, which on a machine whose
++	 * instructions are expensive costs more than the rest of early boot.
++	 * Report misaligned accesses as slow without measuring.
++	 */
++	if (IS_ENABLED(CONFIG_RISCV_SKIP_UNALIGNED_PROBE)) {
++		per_cpu(misaligned_access_speed, cpu) = speed;
++		cpumask_clear_cpu(cpu, &fast_misaligned_access);
++		return 0;
++	}
++
+ 	/* Make an unaligned destination buffer. */
+ 	dst = (void *)((unsigned long)page_address(page) | 0x1);
+ 	/* Unalign src as well, but differently (off by 1 + 2 = 3). */
+diff --git a/arch/riscv/kernel/setup.c b/arch/riscv/kernel/setup.c
+--- a/arch/riscv/kernel/setup.c
++++ b/arch/riscv/kernel/setup.c
+@@ -310,6 +310,10 @@
+ 			set_kernel_memory(__init_begin, __init_end, set_memory_nx);
+ 	}
+ 
++	if (IS_ENABLED(CONFIG_RISCV_KEEP_INIT_TEXT)) {
++		free_reserved_area(__init_data_begin, __init_end, -1, "unused kernel init data");
++		return;
++	}
+ 	free_initmem_default(POISON_FREE_INITMEM);
+ }
+ 
