@@ -6,14 +6,19 @@ A Linux-capable RISC-V CPU is compiled into 37 extra transformer layers, with no
 is the layers' Gated DeltaNet state. Linux 6.8 (no-MMU) boots on it to a BusyBox shell, and Qwen's
 own 32 layers, bit-identical to the released checkpoint, call that shell as a tool.
 
-![boot and shell timings](assets/results.png)
+Weights: [itsrealranky/linuxformer](https://huggingface.co/itsrealranky/linuxformer) on Hugging
+Face, the 32 GB checkpoint and a 634 MB snapshot of the machine booted to its shell prompt.
 
-[Demo video](assets/hero.mp4) (37 s, `lx/tools/render_launch.py hero`), model alone and sped up
-(the speed is always on screen): the second half of the boot, then Qwen writes a Fibonacci script,
-runs it on the machine, hits an out-of-memory failure, rewrites the script and answers 4181. The
-counters and clocks are the runs' own (`mega_boot.json`, `m7_chat_fib_alone.json`). Also: the
-[whole boot](assets/boot_timelapse.mp4) at 40x and the [kernel's boot log](assets/dmesg_4x.mp4)
-at 4x. Every byte on screen is one the model predicted.
+<p align="center"><a href="assets/hero.mp4"><img src="assets/hero.gif" width="600" alt="The model alone: the second half of the Linux boot, then Qwen writes a Fibonacci script, hits an out-of-memory failure, rewrites it and answers 4181"></a></p>
+
+The demo above ([mp4](assets/hero.mp4), 37 s, `lx/tools/render_launch.py hero`), model alone
+and sped up (the speed is always on screen): the second half of the boot, then Qwen writes a
+Fibonacci script, runs it on the machine, hits an out-of-memory failure, rewrites the script and
+answers 4181. The counters and clocks are the runs' own (`mega_boot.json`,
+`m7_chat_fib_alone.json`). Also: the [whole boot](assets/boot_timelapse.mp4) at 40x and the
+[kernel's boot log](assets/dmesg_4x.mp4) at 4x. Every byte on screen is one the model predicted.
+
+![boot and shell timings](assets/results.png)
 
 ## What is in the weights, exactly
 
@@ -217,6 +222,7 @@ python tools/record_video.py boot --out results/video_boot.json \
     --snap 1000000 3808155 3817870 3842780 5000000                   # model alone, stream + snapshots (H100)
 python tools/record_video.py session --out results/video_fib.json    # then the Fibonacci session
 PYTHONPATH=.:tools python tools/render_launch.py hero ../assets/hero.mp4    # CPU only, from results/
+ffmpeg -i ../assets/hero.mp4 -loop 0 -vf "fps=15,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle" ../assets/hero.gif
 PYTHONPATH=.:tools python tools/render_launch.py timelapse ../assets/boot_timelapse.mp4 --speed 40
 PYTHONPATH=.:tools python tools/render_launch.py dmesg ../assets/dmesg_4x.mp4 --speed 4
 cd .. && make video   # the video from results/video_*.json: build/video/out/ (Node >= 22.20, ffmpeg)

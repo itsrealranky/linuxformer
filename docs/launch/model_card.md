@@ -10,7 +10,7 @@ tags:
 
 # linuxformer: Qwen3.5-4B with a Linux-capable CPU in its weights
 
-*Every number here is from `lx/results/summary.md` in the code repository.*
+*Every number here is from `lx/results/summary.md` in the [code repository](https://github.com/itsrealranky/linuxformer).*
 
 This checkpoint is stock Qwen3.5-4B (all 426 tensors bit-identical) with 37 added layers that
 implement an RV32IMA + Zicsr CPU. Those layers are computed by a compiler, not trained. The
@@ -28,11 +28,13 @@ Linux 6.8 to a BusyBox shell, and Qwen can call that shell as a tool.
 
 ## How to run it
 
-Use the drivers in the code repository (one 80 GB GPU; add `--fast` for `lx.fast`, or `--lean`
+Use the drivers in the [code repository](https://github.com/itsrealranky/linuxformer) (one 80 GB GPU; add `--fast` for `lx.fast`, or `--lean`
 to stay within 22 GiB of GPU memory, see Limitations):
 
 ```bash
-huggingface-cli download [HF_REPO] --local-dir model
+git clone https://github.com/itsrealranky/linuxformer && cd linuxformer
+pip install -r requirements.txt                    # Python 3.11, CUDA 13
+hf download itsrealranky/linuxformer --local-dir model
 cd lx
 python -m lx.linux --weights ../model --snapshot ../model/boot-snapshot.safetensors -i   # a shell
 python -m lx.chat  --weights ../model --snapshot ../model/boot-snapshot.safetensors \
