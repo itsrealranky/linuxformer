@@ -1,4 +1,4 @@
-"""How far a pure decode could go with self-speculation: drafts guessed from the stream's own past
+"""How far a pure decode could go with self-drafting: drafts guessed from the stream's own past
 tokens only (no reference, nothing about the CPU), each round checked by one prefill call that
 keeps the drafted prefix the model agrees with, plus the model's own next token. Simulated on
 the boot's token stream (which the model reproduces exactly): rounds needed per drafter.

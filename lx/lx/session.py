@@ -2,13 +2,13 @@
 only types (KEY0 / KEY tokens) and reads the bytes the model predicts (BYTE tokens).
 
     s = Session(c, model, machine)               # a machine snapshot injected (hf.inject)
-    s.verify(toks)                               # speculative: a proposed trace, checked
-    s.free(n)                                    # the pure path: the model's own tokens
+    s.verify(toks)                               # verified mode: a proposed trace, checked
+    s.free(n)                                    # model alone: the model's own tokens
     s.save(path); s = Session.load(c, model, path)
 
-verify() is speculative execution: a proposer (the reference, lx.ref) writes the trace ahead
+verify() is verified mode: a proposer (the reference, lx.ref) writes the trace ahead
 and the model runs it as one chunked prefill; at every position the output head's argmax must
-be the next token (positions before host input predict nothing). free() is the pure path: each
+be the next token (positions before host input predict nothing). free() is the model alone: each
 argmax is fed back as the next input, one CUDA graph per token, with no reference anywhere;
 the host's typing needs only the token stream (a byte is waiting until its RX comes by).
 """
@@ -81,7 +81,7 @@ class Session:
         self.waiting = 0  # typed bytes not yet read (counted from the stream: KEY*, RX)
         self.graph = None
 
-    # --- speculative execution ------------------------------------------------------------
+    # --- verified mode --------------------------------------------------------------------
     @torch.no_grad()
     def verify(self, toks: list[int]) -> dict:
         """Run the proposed tokens as chunked prefill. Returns {"wrong": positions whose

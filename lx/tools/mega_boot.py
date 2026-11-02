@@ -20,7 +20,7 @@ from pathlib import Path
 import torch
 
 from lx import spec as S
-from lx.linux import PROMPT, ROOT, Linux
+from lx.linux import PROMPT, ROOT, Linux, rel
 from lx.mega import Mega
 from lx.session import Session, console
 
@@ -95,7 +95,7 @@ def main():
                     "last chunk's last prediction, handed over by the host)")
     res = {"what": "megakernel boot (model alone)", "device": torch.cuda.get_device_name(),
            "commit": git("rev-parse", "HEAD"), "clean_checkout": git("status", "--porcelain") == "",
-           "weights": a.weights, "ctas": mg.ncta, "tokens_a_launch": a.every,
+           "weights": rel(a.weights), "ctas": mg.ncta, "tokens_a_launch": a.every,
            "input_purity": pure,
            "stream_sha256": hashlib.sha256(json.dumps(stream).encode()).hexdigest(),
            "reference_sha256": hashlib.sha256(json.dumps(want).encode()).hexdigest(),
@@ -112,7 +112,7 @@ def main():
            "peak_gb": round(torch.cuda.max_memory_allocated() / 1e9, 1), "mega": mg.stats}
     if res["same_as_reference"] and a.snapshot:
         s.save(a.snapshot)
-        res["saved"] = a.snapshot
+        res["saved"] = rel(a.snapshot)
     print(json.dumps({k: v for k, v in res.items() if k != "console"}), flush=True)
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1))

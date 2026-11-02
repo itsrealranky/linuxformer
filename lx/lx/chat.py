@@ -107,6 +107,10 @@ class Chat:
                           machine_out=r["out"].decode(errors="replace"))
                 if self.rehearse:
                     ev["rehearsed"] = True
+                elif "same_as_reference" in r:  # model alone: compared with the reference after
+                    ev.update(wrong=r["wrong"], same_as_reference=r["same_as_reference"],
+                              first_difference=r["first_difference"],
+                              input_purity=r["input_purity"])
                 else:
                     ev["wrong"] = 0  # lx.linux.run raises on any wrong prediction
                 echo(f"  <- linux ({r['tokens']} tokens, {r['seconds']}s): {result!r}")
@@ -126,6 +130,9 @@ def main():
     ap.add_argument("--weights", default="", help="a merge.save() directory (else built)")
     ap.add_argument("--rehearse", action="store_true")
     ap.add_argument("--fast", action="store_true", help="verify with lx.fast (zeros skipped)")
+    ap.add_argument("--alone", action="store_true",
+                    help="model alone: decode with lx.mega from the snapshot, no reference in "
+                         "the loop (compared with afterwards)")
     ap.add_argument("--lean", action="store_true",
                     help="lx.fast, the chip projections kept in host memory (fits a 24 GB card)")
     ap.add_argument("--max-gib", type=float, default=None,
@@ -135,18 +142,20 @@ def main():
     if a.max_gib:
         torch.cuda.set_per_process_memory_fraction(
             a.max_gib * 2**30 / torch.cuda.get_device_properties(0).total_memory)
-    lx = Linux(merged=True, weights=Path(a.weights) if a.weights else None, fast=a.fast,
-               lean=a.lean)
-    b = lx.boot(Path(a.snapshot))
+    lx = Linux(merged=True, weights=Path(a.weights) if a.weights else None,
+               fast=a.fast or a.alone, lean=a.lean)
+    boot = lx.boot_alone if a.alone else lx.boot
+    b = boot(Path(a.snapshot))
     print(f"[{b['what']}: {b['tokens']} tokens in {b['seconds']}s]", flush=True)
     chat = Chat(lx, a.rehearse)
     qs = a.questions or ["What Linux kernel version is your shell machine running, and on what "
                          "CPU architecture? Check with the shell, then answer in one sentence."]
-    res = {"device": torch.cuda.get_device_name(), **lx.info, "rehearsed": a.rehearse, "boot": {
+    res = {"device": torch.cuda.get_device_name(), **lx.info, "rehearsed": a.rehearse,
+           "mode": "model alone" if a.alone else "verified", "boot": {
         k: v for k, v in b.items() if k != "out"}, "chats": []}
     for i, q in enumerate(qs):
         if i:  # every question starts from the booted machine
-            lx.boot(Path(a.snapshot))
+            boot(Path(a.snapshot))
         print(f"\nuser: {q}", flush=True)
         res["chats"].append(chat.ask(q))
     res["peak_gb"] = round(torch.cuda.max_memory_allocated() / 1e9, 1)

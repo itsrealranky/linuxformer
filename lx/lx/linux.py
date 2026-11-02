@@ -3,17 +3,19 @@
     python -m lx.linux [--merged] [--snapshot FILE] [--out FILE] [CMD ...]   # or a prompt: -i
 
 Every byte shown is one the model predicted (BYTE tokens), never the reference's: the
-reference only proposes the trace (speculative execution), and a single wrong prediction stops
-the run. A command is typed as KEY0 / KEY tokens (at most RX_SLOTS bytes at a time: the rest
+reference only proposes the trace (verified mode), and a single wrong prediction stops the
+run. With boot_alone(), run() decodes the model alone (lx.mega) and compares afterwards. A command is typed as KEY0 / KEY tokens (at most RX_SLOTS bytes at a time: the rest
 once the kernel has read those), then the machine runs until the shell prints its prompt again.
 """
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 
 from lx import core, hf
@@ -25,6 +27,15 @@ ROOT = Path(__file__).resolve().parents[2]
 IMAGE = ROOT / "kernel" / "Image"
 CMDLINE = "console=ttyS0 rdinit=/bin/sh"
 PROMPT = b"/ # "
+
+
+def rel(p) -> str:
+    """p as recorded in results files: relative to the repository root when it is inside it."""
+    p = Path(os.path.abspath(p))  # not resolve(): a symlinked build/ stays inside the repo
+    try:
+        return str(p.relative_to(ROOT))
+    except ValueError:
+        return str(p)
 
 
 class Wrong(RuntimeError):
@@ -104,6 +115,7 @@ class Linux:
         self.build_s = time.time() - t0
         self.chunk = chunk
         self.s = None
+        self.mg = None  # lx.mega, for model-alone runs (boot_alone)
         self.log = []
 
     def reset_machine(self) -> R.Machine:
@@ -127,7 +139,7 @@ class Linux:
             t0 = time.time()
             self.s = Session.load(self.c, self.model, snapshot, self.chunk, self.offset,
                                   self.fast)
-            rec = {"what": "boot (snapshot)", "path": str(snapshot), "tokens": self.s.n,
+            rec = {"what": "boot (snapshot)", "path": rel(snapshot), "tokens": self.s.n,
                    "seconds": round(time.time() - t0, 2), "out": b""}
         else:
             self.s = Session(self.c, self.model, self.reset_machine(), self.chunk, self.offset,
@@ -147,7 +159,7 @@ class Linux:
                    "timeline": timeline}
             if snapshot:
                 self.s.save(snapshot)
-                rec["saved"] = str(snapshot)
+                rec["saved"] = rel(snapshot)
         self.log.append(rec)
         return rec
 
@@ -159,16 +171,20 @@ class Linux:
         alone, nothing verified (the model's state is then behind: for previewing commands).
         ``progress(seconds, tokens verified, tokens, console bytes so far)`` after each chunk."""
         data = (cmd.encode() if isinstance(cmd, str) else cmd).rstrip(b"\n") + b"\n"
-        o0 = len(self.s.ref.out)
-        t0 = time.time()
-        toks = type_and_run(self.s.ref, data, max_records)
-        prop = time.time() - t0
-        rec = {"what": "run", "cmd": data.decode(errors="replace").rstrip("\n"),
-               "propose_s": round(prop, 1)}
-        if rehearse:
+        cmd = data.decode(errors="replace").rstrip("\n")
+        if self.mg is not None:
+            rec = {"what": "run (model alone)", "cmd": cmd}
+            rec.update(self.run_alone(data, progress=progress))
+        elif rehearse:
+            o0 = len(self.s.ref.out)
+            toks = type_and_run(self.s.ref, data, max_records)
+            rec = {"what": "run", "cmd": cmd}
             rec.update(tokens=len(toks), seconds=0.0, tok_per_s=0, rehearsed=True,
                        out=bytes(self.s.ref.out[o0:]), timeline=[])
         else:
+            t0 = time.time()
+            toks = type_and_run(self.s.ref, data, max_records)
+            rec = {"what": "run", "cmd": cmd, "propose_s": round(time.time() - t0, 1)}
             # verified chunk by chunk, for the timeline: (seconds, tokens, console bytes so far)
             timeline, out, dt = [], b"", 0.0
             for a in range(0, len(toks), self.chunk):
@@ -188,6 +204,110 @@ class Linux:
         rec["output"] = body
         self.log.append(rec)
         return rec
+
+    @torch.no_grad()
+    def boot_alone(self, snapshot: Path) -> dict:
+        """Load a booted snapshot for model-alone runs (needs fast=True): run() then decodes
+        with lx.mega, the model fed its own predictions; the snapshot's reference machine is
+        only compared with afterwards."""
+        import copy
+
+        from lx.mega import Mega
+
+        t0 = time.time()
+        self.s = Session.load(self.c, self.model, snapshot, self.chunk, self.offset)
+        self.alone_ref = copy.deepcopy(self.s.ref)
+        load_s = time.time() - t0
+        t0 = time.time()
+        self.mg = Mega(self.fast, self.model, self.s.cache, self.offset)
+        rec = {"what": "boot (snapshot, model alone)", "path": rel(snapshot), "tokens": self.s.n,
+               "seconds": round(load_s, 2), "mega_build_s": round(time.time() - t0, 1),
+               "out": b""}
+        self.log.append(rec)
+        return rec
+
+    @torch.no_grad()
+    def run_alone(self, data: bytes, max_tokens: int = 60_000_000, progress=None) -> dict:
+        """Model alone (lx.mega): type data RX_SLOTS bytes at a time, each at a record boundary
+        once the model's own stream shows the receive FIFO empty, and decode the model's own
+        predictions until its console shows the prompt after the input with the CPU idle (as
+        type_and_run, judged from the model's stream instead of the reference). Decoding runs
+        in launches of 4k tokens doubling to 64k, so the machine idles up to one launch longer
+        than the reference would before the next keystrokes. Afterwards the stream is compared
+        with the reference machine's, typed at the same places."""
+        from lx.session import _final_ids
+
+        s, mg = self.s, self.mg
+        final = _final_ids().numpy()
+        b0, nb = S.FAMILIES["BYTE"]
+        rx0, nrx = S.FAMILIES["RX"]
+        typed = np.zeros(final.shape[0], dtype=bool)
+        for f in S.INPUT:
+            typed[S.FAMILIES[f][0]:S.FAMILIES[f][0] + S.FAMILIES[f][1]] = True
+        wfi = S.tok("WFI")
+        stream, typed_at, out, idle = [], [], bytearray(), False
+        inp = torch.zeros((1 << 16) + S.RX_SLOTS, dtype=torch.int32, device=mg.dev)
+        pure = {"inputs_checked": 0, "keystrokes": 0, "launches": 0}
+        timeline = []
+        torch.cuda.synchronize()
+        t0 = time.time()
+        for a in range(0, len(data), S.RX_SLOTS):
+            batch = data[a:a + S.RX_SLOTS]
+            last = a + S.RX_SLOTS >= len(data)
+            assert final[s.last] and s.waiting == 0, (s.last, s.waiting)
+            forced = [S.tok("KEY0" if i == 0 else "KEY", b) for i, b in enumerate(batch)]
+            typed_at.append(len(stream))
+            m, keys = 4096, len(forced)
+            while len(stream) < max_tokens:
+                n = len(forced) + m - 1
+                preds = mg.run(forced, n, inputs=inp)
+                got = inp[:n].tolist()
+                assert got[:len(forced)] == forced and \
+                    got[len(forced):] == preds[len(forced) - 1:n - 1]
+                pure["inputs_checked"] += n
+                pure["keystrokes"] += keys
+                keys = 0
+                pure["launches"] += 1
+                g = np.asarray(got)
+                s.waiting += int(typed[g].sum()) - int(((g >= rx0) & (g < rx0 + nrx)).sum())
+                isb = (g >= b0) & (g < b0 + nb)
+                out += bytes((g[isb] - b0).astype(np.uint8))
+                iw = np.nonzero(g == wfi)[0]
+                ib = np.nonzero(isb)[0]
+                if iw.size or ib.size:
+                    idle = (iw[-1] if iw.size else -1) > (ib[-1] if ib.size else -1)
+                stream += got
+                s.next, s.last, s.n = preds[-1], got[-1], s.n + n
+                forced = [s.next]
+                timeline.append((round(time.time() - t0, 2), len(stream), len(out)))
+                if progress:
+                    progress(time.time() - t0, len(stream), 0, out)
+                done = s.waiting == 0 and (not last or (idle and out.endswith(PROMPT)
+                                                        and len(out) > 0))
+                if done and final[s.last]:
+                    break
+                m = 1 if done else min(2 * m, 1 << 16)
+        torch.cuda.synchronize()
+        dt = time.time() - t0
+        ref, want = self.alone_ref, []
+        for i, at in enumerate(typed_at):
+            while len(want) < at:
+                want += ref.step()
+            for b in data[i * S.RX_SLOTS:(i + 1) * S.RX_SLOTS]:
+                want += ref.key(b)
+        while len(want) < len(stream):
+            want += ref.step()
+        first = next((i for i, (x, y) in enumerate(zip(stream, want)) if x != y), None)
+        if first is None and len(want) != len(stream):
+            first = min(len(want), len(stream))
+        pure["passed"] = pure["inputs_checked"] == len(stream) and \
+            pure["keystrokes"] == len(data)
+        return {"tokens": len(stream), "seconds": round(dt, 2),
+                "tok_per_s": round(len(stream) / dt), "out": bytes(out), "timeline": timeline,
+                "same_as_reference": first is None, "first_difference": first,
+                "wrong": 0 if first is None else len(stream) - first,
+                "console_matches_reference": bytes(out) == bytes(ref.out[-len(out):]) if out
+                else True, "input_purity": pure}
 
 
 def _after_echo(text: bytes, line: bytes) -> bytes | None:

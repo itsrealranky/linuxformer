@@ -32,8 +32,8 @@ struct Phase {
   int item_off, n_items;  // GDN: its items (one per live key head, or conv channels only)
   int n_units, row_off, d_off;  // MLP: units; gate rows row_off + u, up rows + n_units; down d_off + u
   int f64;  // MLP: gate/up sums in fp64 (rows whose fp32 sum may depend on the order)
-  int grp_n;  // > 0: the first of grp_n GDN phases run speculatively together (mega's loop)
-  int pair;   // GDN: with the next phase (its layer's MLP) speculatively (mega's loop)
+  int grp_n;  // > 0: the first of grp_n GDN phases run optimistically together (mega's loop)
+  int pair;   // GDN: with the next phase (its layer's MLP) optimistically (mega's loop)
 };
 
 // A GDN item's resident blob (shared memory): Item, padded to 64 bytes; float vtab[64] (its
@@ -117,8 +117,8 @@ struct Params {
   int dbg_tok;
   float* dbg_items;  // if set: each GDN item's q | k | v, beta, g at step dbg_tok (beta if q|k live)
   unsigned long long* prof;  // if set: per phase and CTA, cycles of work and of the whole phase
-  uint2* wsave;  // per item channel (chans' index): its window before a speculative phase
-  float* accs;   // 3 x HIDDEN: a speculative MLP's sums
+  uint2* wsave;  // per item channel (chans' index): its window before an optimistic phase
+  float* accs;   // 3 x HIDDEN: an optimistic MLP's sums
   int* inputs;   // if set: each step's input token, as embedded (n_tokens)
 };
 
@@ -281,7 +281,7 @@ __device__ __forceinline__ void conv_out(const Params& p, Smem& sm, const Item& 
   sm.u.g.buf[slot] = rbf(silu(rbf(y)));
 }
 
-// gm set: speculative (the residual may be stale): the windows' old values to wsave, and past the
+// gm set: optimistic (the residual may be stale): the windows' old values to wsave, and past the
 // conv windows (the only change of a step with q, k all zeros and no decay) only bit spec of gm
 // (and wrote) set.
 __device__ void gdn_item(const Params& p, Smem& sm, const unsigned char* blob, int L, float* acc,
@@ -630,7 +630,7 @@ __device__ void head_part(const Params& p, Smem& sm, const uint32_t* codes) {
   }
 }
 
-// a speculative gdn_item's windows back (each thread its own channels, as it saved them)
+// an optimistic gdn_item's windows back (each thread its own channels, as it saved them)
 __device__ void gdn_rollback(const Params& p, Smem& sm, const unsigned char* blob, int L) {
   const unsigned char* body = blob + reinterpret_cast<const int*>(blob)[1];
   const Item& it = *reinterpret_cast<const Item*>(body);

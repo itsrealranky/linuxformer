@@ -15,7 +15,7 @@ from pathlib import Path
 import torch
 
 from lx import spec as S
-from lx.linux import PROMPT, ROOT, Linux
+from lx.linux import PROMPT, ROOT, Linux, rel
 from lx.session import Session, console
 
 
@@ -77,7 +77,7 @@ def main():
            "peak_gb": round(torch.cuda.max_memory_allocated() / 1e9, 1)}
     if res["same_as_reference"] and a.snapshot:
         s.save(a.snapshot)
-        res["saved"] = a.snapshot
+        res["saved"] = rel(a.snapshot)
     print(json.dumps({k: v for k, v in res.items() if k != "console"}), flush=True)
     if a.out:
         Path(a.out).write_text(json.dumps(res, indent=1))

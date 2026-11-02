@@ -397,7 +397,7 @@ class Mega:
         head_phase = len(phases)
         phases.append(Phase(kind=2, layer=-1, eps=float(norm.eps), cu_off=cu_off, n_cu=n_cu))
         self.head_rows, self.n_vocab = hr, V
-        # runs of GDN phases (no MLP between) run speculatively together (csrc/mega.cu)
+        # runs of GDN phases (no MLP between) are scheduled optimistically together, checked and redone (csrc/mega.cu)
         grp_of = {}
         if spec:
             k = 0
