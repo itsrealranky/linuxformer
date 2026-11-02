@@ -1,0 +1,25 @@
+{
+ "cmd": "a=6\nb=7\necho product $((a*b)) of $a and $b, and this line is long enough to wrap\necho ok",
+ "load_s": 25.4,
+ "boot": {
+  "what": "boot (snapshot, model alone)",
+  "path": "build/snapshots/boot-merged-mega.pt",
+  "tokens": 7331612,
+  "seconds": 1.21,
+  "mega_build_s": 1.0
+ },
+ "tokens": 1171544,
+ "seconds": 199.77,
+ "tok_per_s": 5865,
+ "same_as_reference": true,
+ "first_difference": null,
+ "console_matches_reference": true,
+ "input_purity": {
+  "inputs_checked": 1171544,
+  "keystrokes": 89,
+  "launches": 25,
+  "passed": true
+ },
+ "launches": 25,
+ "output": "a=6\n/ # b=7\n/ # echo product $((a*b)) of $a and $b, and this line is long enough to wrap\nproduct 42 of 6 and 7, and this line is long enough to wrap\n/ # echo ok\nok\n"
+}

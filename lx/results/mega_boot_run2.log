@@ -1,0 +1,31 @@
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+{"reference_tokens": 7331612, "running": 7331612, "propose_s": 20.9, "mega_build_s": 11.1, "mega": {"phases": 53, "items": 497, "ctas": 132, "csr_nnz": 5872997, "csc_nnz": 165001, "head_nnz": 4133751, "chans": 360883, "head_dense": 31, "head_sparse": 191, "res_max": 180480, "res_min": 142064, "smem": 230528, "pairs": [3, 7, 8, 9, 10, 11, 12, 13], "groups": [[28, 22]], "grp_items_max": 3}}
+{"tokens": 262144, "of": 7331612, "s": 42.5, "tok_per_s": 6166.6, "console_bytes": 0, "eta_min": 19.1, "first_difference": null}
+{"tokens": 524288, "of": 7331612, "s": 84.7, "tok_per_s": 6187.4, "console_bytes": 0, "eta_min": 18.3, "first_difference": null}
+{"tokens": 786432, "of": 7331612, "s": 127.2, "tok_per_s": 6180.3, "console_bytes": 0, "eta_min": 17.7, "first_difference": null}
+{"tokens": 1048576, "of": 7331612, "s": 169.4, "tok_per_s": 6189.8, "console_bytes": 0, "eta_min": 16.9, "first_difference": null}
+{"tokens": 1310720, "of": 7331612, "s": 212.5, "tok_per_s": 6168.0, "console_bytes": 0, "eta_min": 16.3, "first_difference": null}
+{"tokens": 1572864, "of": 7331612, "s": 255.4, "tok_per_s": 6159.2, "console_bytes": 0, "eta_min": 15.6, "first_difference": null}
+{"tokens": 1835008, "of": 7331612, "s": 298.4, "tok_per_s": 6149.7, "console_bytes": 0, "eta_min": 14.9, "first_difference": null}
+{"tokens": 2097152, "of": 7331612, "s": 341.5, "tok_per_s": 6141.0, "console_bytes": 0, "eta_min": 14.2, "first_difference": null}
+{"tokens": 2359296, "of": 7331612, "s": 385.0, "tok_per_s": 6128.0, "console_bytes": 0, "eta_min": 13.5, "first_difference": null}
+{"tokens": 2621440, "of": 7331612, "s": 428.3, "tok_per_s": 6120.4, "console_bytes": 0, "eta_min": 12.8, "first_difference": null}
+{"tokens": 2883584, "of": 7331612, "s": 471.4, "tok_per_s": 6116.5, "console_bytes": 0, "eta_min": 12.1, "first_difference": null}
+{"tokens": 3145728, "of": 7331612, "s": 514.6, "tok_per_s": 6112.8, "console_bytes": 0, "eta_min": 11.4, "first_difference": null}
+{"tokens": 3407872, "of": 7331612, "s": 559.5, "tok_per_s": 6090.8, "console_bytes": 0, "eta_min": 10.7, "first_difference": null}
+{"tokens": 3670016, "of": 7331612, "s": 602.6, "tok_per_s": 6089.9, "console_bytes": 0, "eta_min": 10.0, "first_difference": null}
+{"tokens": 3932160, "of": 7331612, "s": 645.8, "tok_per_s": 6088.8, "console_bytes": 682, "eta_min": 9.3, "first_difference": null}
+{"tokens": 4194304, "of": 7331612, "s": 689.0, "tok_per_s": 6087.5, "console_bytes": 2096, "eta_min": 8.6, "first_difference": null}
+{"tokens": 4456448, "of": 7331612, "s": 732.7, "tok_per_s": 6082.5, "console_bytes": 2096, "eta_min": 7.9, "first_difference": null}
+{"tokens": 4718592, "of": 7331612, "s": 777.6, "tok_per_s": 6067.9, "console_bytes": 2096, "eta_min": 7.2, "first_difference": null}
+{"tokens": 4980736, "of": 7331612, "s": 821.5, "tok_per_s": 6063.1, "console_bytes": 2096, "eta_min": 6.5, "first_difference": null}
+{"tokens": 5242880, "of": 7331612, "s": 864.9, "tok_per_s": 6062.1, "console_bytes": 2126, "eta_min": 5.7, "first_difference": null}
+{"tokens": 5505024, "of": 7331612, "s": 908.6, "tok_per_s": 6058.7, "console_bytes": 2126, "eta_min": 5.0, "first_difference": null}
+{"tokens": 5767168, "of": 7331612, "s": 952.3, "tok_per_s": 6056.0, "console_bytes": 2126, "eta_min": 4.3, "first_difference": null}
+{"tokens": 6029312, "of": 7331612, "s": 996.0, "tok_per_s": 6053.4, "console_bytes": 2126, "eta_min": 3.6, "first_difference": null}
+{"tokens": 6291456, "of": 7331612, "s": 1039.6, "tok_per_s": 6051.9, "console_bytes": 2126, "eta_min": 2.9, "first_difference": null}
+{"tokens": 6553600, "of": 7331612, "s": 1083.0, "tok_per_s": 6051.1, "console_bytes": 2126, "eta_min": 2.1, "first_difference": null}
+{"tokens": 6815744, "of": 7331612, "s": 1127.6, "tok_per_s": 6044.3, "console_bytes": 2263, "eta_min": 1.4, "first_difference": null}
+{"tokens": 7077888, "of": 7331612, "s": 1174.6, "tok_per_s": 6025.8, "console_bytes": 2263, "eta_min": 0.7, "first_difference": null}
+{"tokens": 7331612, "of": 7331612, "s": 1218.2, "tok_per_s": 6018.3, "console_bytes": 2340, "eta_min": 0.0, "first_difference": null}
+{"what": "megakernel boot (model alone)", "device": "NVIDIA H100 80GB HBM3", "commit": "26c52ef25413b067437ca358b70ac6ea7948fffa", "clean_checkout": true, "weights": "build/hf/model", "ctas": 132, "tokens_a_launch": 262144, "input_purity": {"inputs_checked": 7331612, "forced_by_host": {"GO": 1, "keystrokes": 0}, "chunks": 28, "chunk_handoffs": 27, "passed": true, "rule": "the kernel's embedded input at step 0 is GO; at every other step, the model's own prediction from the step before (across a chunk boundary, the last chunk's last prediction, handed over by the host)"}, "stream_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1", "reference_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1", "tokens": 7331612, "reference_tokens": 7331612, "seconds": 1218.2, "minutes": 20.3, "tok_per_s": 6018.3, "propose_s": 20.9, "mega_build_s": 11.1, "same_as_reference": true, "first_difference": null, "first_difference_tokens": null, "console_bytes": 2340, "console_matches_reference": true, "peak_gb": 34.3, "mega": {"phases": 53, "items": 497, "ctas": 132, "csr_nnz": 5872997, "csc_nnz": 165001, "head_nnz": 4133751, "chans": 360883, "head_dense": 31, "head_sparse": 191, "res_max": 180480, "res_min": 142064, "smem": 230528, "pairs": [3, 7, 8, 9, 10, 11, 12, 13], "groups": [[28, 22]], "grp_items_max": 3}, "saved": "build/snapshots/boot-merged-mega.pt"}

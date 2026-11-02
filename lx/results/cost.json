@@ -1,0 +1,26 @@
+{
+ "snapshot": "boot-merged.pt",
+ "runs": [
+  {
+   "cmd": "echo hi",
+   "tokens": 182928,
+   "instructions": 103416,
+   "tokens_per_instruction": 1.77,
+   "output": "echo hi\nhi\n/ # "
+  },
+  {
+   "cmd": "uname -a",
+   "tokens": 844129,
+   "instructions": 573137,
+   "tokens_per_instruction": 1.47,
+   "output": "uname -a\nLinux (none) 6.8.0-rc1mini-rv32ima #8 Sat Oct 31 19:54:04 UTC 2026 riscv32\n/ # "
+  },
+  {
+   "cmd": "a=0; b=1; i=1; while [ $i -le 20 ]; do echo $a; c=$((a + b)); a=$b; b=$c; i=$((i + 1)); done",
+   "tokens": 3483738,
+   "instructions": 1412736,
+   "tokens_per_instruction": 2.47,
+   "output": "a=0; b=1; i=1; while [ $i -le 20 ]; do echo $a; c=$((a + b)); a=$b; b=$c; i=\r\n$((i + 1)); done\n0\n1\n1\n2\n3\n5\n8\n13\n21\n34\n55\n89\n144\n233\n377\n610\n987\n1597\n2584\n4181\n/ # "
+  }
+ ]
+}

@@ -1,0 +1,129 @@
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "chip_layers": 37,
+ "qwen_layers": 32,
+ "qwen_vocab": 248320,
+ "chip_token_offset": 248320,
+ "chip_vocab": 459982,
+ "hidden": 2560,
+ "ballast_dims": 10,
+ "chip_slots": 1607,
+ "code_dims": [
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222
+ ],
+ "kappa": 1.0,
+ "circuit": {
+  "layers": 37,
+  "dims": 3572,
+  "heads": 497,
+  "ffn_units": 36716,
+  "max_units": 8102,
+  "max_heads": 16
+ },
+ "params_B": 15.99,
+ "qwen_tensors_not_identical": [],
+ "head_wrong_tokens": [],
+ "head_tokens_checked": 459982,
+ "text": {
+  "prompts": 8,
+  "mean_kl": 0.0006022549132467248,
+  "max_kl": 0.0009137396700680256,
+  "noise_floor_mean_kl": 0.0005506224388227565,
+  "top1_agree": 0.9902912621359223,
+  "greedy_identical": 7,
+  "generations": [
+   {
+    "prompt": "The capital of France is",
+    "stock": " Paris.\nA. True\nB. False\nAnswer:\nA\n\nWhich of the following is NOT a reason for the decline of the Roman Empire?\nA. Economic problems\nB. Political instability\nC. Military defeats\n",
+    "merged": " Paris.\nA. True\nB. False\nAnswer:\nA\n\nWhich of the following is NOT a characteristic of the Mediterranean climate?\nA. Hot\nD. ry summers\nB. Mild\nW. et winters\n"
+   },
+   {
+    "prompt": "def fibonacci(n):\n    \"\"\"Return the n-th Fibonacci number.\"\"\"\n",
+    "stock": "    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n - 1) + fibonacci(n - 2)\n\n# Example",
+    "merged": "    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:\n        return fibonacci(n - 1) + fibonacci(n - 2)\n\n# Example"
+   },
+   {
+    "prompt": "Linux is a family of open-source Unix-like operating systems based on",
+    "stock": " the Linux kernel, which was originally developed by Linus Torvalds in 1991. The Linux kernel is the core of the operating system, and it is responsible for managing hardware resources and providing services to applications. The Linux",
+    "merged": " the Linux kernel, which was originally developed by Linus Torvalds in 1991. The Linux kernel is the core of the operating system, and it is responsible for managing hardware resources and providing services to applications. The Linux"
+   },
+   {
+    "prompt": "Question: What is 17 * 23?\nAnswer:",
+    "stock": " 391<|endoftext|>",
+    "merged": " 391<|endoftext|>"
+   },
+   {
+    "prompt": "In 1905, Albert Einstein published four papers that",
+    "stock": " fundamentally changed our understanding of the universe. These papers, collectively known as the \"Annus Mirabilis\" papers, included the theory of special relativity, the photoelectric effect, Brownian motion, and the equivalence of mass and energy",
+    "merged": " fundamentally changed our understanding of the universe. These papers, collectively known as the \"Annus Mirabilis\" papers, included the theory of special relativity, the photoelectric effect, Brownian motion, and the equivalence of mass and energy"
+   },
+   {
+    "prompt": "The mitochondria is the powerhouse of the cell. It produces",
+    "stock": " energy for the cell. What is the main function of the mitochondria?\n\nA. To produce energy for the cell\nB. To produce proteins\nC. To produce DNA\nD. To produce lipids\n\n<think>\nThe user",
+    "merged": " energy for the cell. What is the main function of the mitochondria?\n\nA. To produce energy for the cell\nB. To produce proteins\nC. To produce DNA\nD. To produce lipids\n\n<think>\nThe user"
+   },
+   {
+    "prompt": "Translate to French: 'The weather is nice today.'\nFrench:",
+    "stock": " 'Il fait beau aujourd'hui.'\n\n<think>\nThinking Process:\n\n1.  **Analyze the Request:**\n    *   Source language: English\n    *   Target language: French\n    *   Source sentence: \"The",
+    "merged": " 'Il fait beau aujourd'hui.'\n\n<think>\nThinking Process:\n\n1.  **Analyze the Request:**\n    *   Source language: English\n    *   Target language: French\n    *   Source sentence: \"The"
+   },
+   {
+    "prompt": "<|im_start|>user\nWrite a haiku about the sea.<|im_end|>\n<|im_start|>assistant\n",
+    "stock": "<think>\nThinking Process:\n\n1.  **Analyze the Request:**\n    *   Topic: The sea.\n    *   Form: Haiku (5-7-5 syllables).\n\n2.  **Brainstorm",
+    "merged": "<think>\nThinking Process:\n\n1.  **Analyze the Request:**\n    *   Topic: The sea.\n    *   Form: Haiku (5-7-5 syllables).\n\n2.  **Brainstorm"
+   }
+  ]
+ },
+ "chip": [
+  {
+   "records": [
+    0,
+    2000
+   ],
+   "tokens": 2657,
+   "wrong": 0,
+   "first_wrong": [],
+   "seconds": 0.3
+  },
+  {
+   "records": [
+    4970260,
+    4970880
+   ],
+   "tokens": 825,
+   "wrong": 0,
+   "first_wrong": [],
+   "seconds": 0.1
+  },
+  {
+   "records": [
+    1240200,
+    1240320
+   ],
+   "tokens": 159,
+   "wrong": 0,
+   "first_wrong": [],
+   "seconds": 0.1
+  }
+ ]
+}

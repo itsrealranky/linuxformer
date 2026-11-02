@@ -1,0 +1,103 @@
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "merged": true,
+ "chip_layers": 37,
+ "qwen_layers": 32,
+ "qwen_vocab": 248320,
+ "chip_token_offset": 248320,
+ "chip_vocab": 459982,
+ "hidden": 2560,
+ "ballast_dims": 10,
+ "chip_slots": 1607,
+ "code_dims": [
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222
+ ],
+ "kappa": 1.0,
+ "circuit": {
+  "layers": 37,
+  "dims": 3572,
+  "heads": 497,
+  "ffn_units": 36716,
+  "max_units": 8102,
+  "max_heads": 16
+ },
+ "params_B": 15.99,
+ "fast": false,
+ "lean": false,
+ "build_s": 25,
+ "chunk": 32768,
+ "peak_gb": 55.8,
+ "peak_reserved_gb": 56.9,
+ "max_gib": null,
+ "runs": [
+  {
+   "what": "boot (snapshot)",
+   "path": "build/hf/model/boot-snapshot.safetensors",
+   "tokens": 7331612,
+   "seconds": 0.99,
+   "out": ""
+  },
+  {
+   "what": "run",
+   "cmd": "echo hi",
+   "propose_s": 0.5,
+   "tokens": 182928,
+   "seconds": 19.55,
+   "tok_per_s": 9357,
+   "out": "echo hi\r\nhi\r\n/ # ",
+   "timeline": [
+    [
+     3.56,
+     32768,
+     0
+    ],
+    [
+     7.05,
+     65536,
+     0
+    ],
+    [
+     10.53,
+     98304,
+     0
+    ],
+    [
+     14.01,
+     131072,
+     0
+    ],
+    [
+     17.5,
+     163840,
+     0
+    ],
+    [
+     19.55,
+     182928,
+     17
+    ]
+   ],
+   "output": "hi\n"
+  }
+ ]
+}

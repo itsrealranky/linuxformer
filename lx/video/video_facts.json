@@ -1,0 +1,700 @@
+{
+ "what": "Every number, label and caption in the hero video, with its source. Written by lx/video/export_frames.py from the recorded runs.",
+ "facts": {
+  "boot_tokens": {
+   "value": 7331612,
+   "text": "7,331,612",
+   "source": "results/video_boot.json: tokens"
+  },
+  "boot_wrong": {
+   "value": 0,
+   "text": "0",
+   "source": "results/video_boot.json: same_as_reference (stream sha256 = reference sha256)"
+  },
+  "boot_minutes": {
+   "value": 20.2,
+   "text": "20.2",
+   "source": "results/video_boot.json: decode_seconds / 60"
+  },
+  "boot_tok_per_s": {
+   "value": 6033,
+   "text": "6,033",
+   "source": "results/video_boot.json: tok_per_s"
+  },
+  "gpu": {
+   "value": "NVIDIA H100 80GB HBM3",
+   "text": "H100",
+   "source": "results/video_boot.json: device"
+  },
+  "instructions": {
+   "value": 5418133,
+   "text": "5,418,133",
+   "source": "tools/video_events.py on the boot stream"
+  },
+  "uart_bytes": {
+   "value": 2340,
+   "text": "2,340",
+   "source": "tools/video_events.py on the boot stream"
+  },
+  "timer_interrupts": {
+   "value": 11,
+   "text": "11",
+   "source": "tools/video_events.py on the boot stream"
+  },
+  "session_tokens": {
+   "value": 12525912,
+   "text": "12,525,912",
+   "source": "results/video_fib.json: sum of machine_tokens"
+  },
+  "total_tokens": {
+   "value": 19857524,
+   "text": "19,857,524",
+   "source": "boot_tokens + session_tokens"
+  },
+  "call0_tokens": {
+   "value": 5755042,
+   "text": "5,755,042",
+   "source": "results/video_fib.json: call 0 machine_tokens"
+  },
+  "call0_keys": {
+   "value": 165,
+   "text": "165",
+   "source": "results/video_fib.json: call 0 input_purity.keystrokes"
+  },
+  "call0_wrong": {
+   "value": 0,
+   "text": "0",
+   "source": "results/video_fib.json: call 0 wrong (stream sha256 = reference sha256)"
+  },
+  "call1_tokens": {
+   "value": 6770870,
+   "text": "6,770,870",
+   "source": "results/video_fib.json: call 1 machine_tokens"
+  },
+  "call1_keys": {
+   "value": 185,
+   "text": "185",
+   "source": "results/video_fib.json: call 1 input_purity.keystrokes"
+  },
+  "call1_wrong": {
+   "value": 0,
+   "text": "0",
+   "source": "results/video_fib.json: call 1 wrong (stream sha256 = reference sha256)"
+  },
+  "total_wrong": {
+   "value": 0,
+   "text": "0",
+   "source": "boot_wrong + the calls' wrong"
+  },
+  "call1_while_no_seq": {
+   "value": true,
+   "text": "true",
+   "source": "results/video_fib.json: call 0's command uses $(seq 1 20); call 1's uses a while loop and no seq"
+  },
+  "fib_n": {
+   "value": 20,
+   "text": "20th",
+   "source": "results/video_fib.json: question ('the first N Fibonacci numbers ... the Nth number')"
+  },
+  "answer": {
+   "value": 4181,
+   "text": "4181",
+   "source": "results/video_fib.json: Qwen's final reply"
+  },
+  "linux_version": {
+   "value": "6.8-rc1",
+   "text": "6.8-rc1",
+   "source": "boot console: 'Linux version 6.8.0-rc1mini-rv32ima ...' (kernel/linux-6.8-rc1)"
+  },
+  "qwen_tensors_differ": {
+   "value": 0,
+   "text": "0",
+   "source": "results/m6_merge_check.json: qwen_tensors_not_identical (README: 0 of 426 tensors differ)"
+  },
+  "no_training": {
+   "value": true,
+   "text": "No training",
+   "source": "README 'What is in the weights': the compiler (lx/lx/core.py, emit.py) computes the 37 chip layers' weights from the CPU circuit; Qwen's are the release's"
+  },
+  "license": {
+   "value": "MIT",
+   "text": "MIT",
+   "source": "LICENSE (third-party components: NOTICE)"
+  },
+  "chip_layers": {
+   "value": 37,
+   "text": "37",
+   "source": "build/hf/model/lx_info.json: chip_layers"
+  },
+  "qwen_layers": {
+   "value": 32,
+   "text": "32",
+   "source": "build/hf/model/lx_info.json: qwen_layers"
+  },
+  "ram_squares": {
+   "value": 1152,
+   "text": "1,152",
+   "source": "results/address_map.json: ram_size / 4096"
+  },
+  "rom_pages": {
+   "value": 247,
+   "text": "247",
+   "source": "results/address_map.json: text_end"
+  },
+  "zoom_address": {
+   "value": 2149024532,
+   "text": "0x80178314",
+   "source": "System.map: __log_buf + 4"
+  },
+  "zoom_layer": {
+   "value": 11,
+   "text": "model.layers.11",
+   "source": "results/address_map.json: locate(zoom_address)"
+  },
+  "zoom_key_head": {
+   "value": 2,
+   "text": "2",
+   "source": "results/address_map.json"
+  },
+  "zoom_row": {
+   "value": 24,
+   "text": "24",
+   "source": "results/address_map.json"
+  },
+  "zoom_value_heads": {
+   "value": [
+    21,
+    22
+   ],
+   "text": "21–22",
+   "source": "results/address_map.json"
+  },
+  "zoom_written_at": {
+   "value": 13300,
+   "text": "13,300",
+   "source": "tools/video_events.py: first store to zoom_address"
+  },
+  "zoom_page": {
+   "value": 376,
+   "text": "376",
+   "source": "zoom_address // 4096"
+  },
+  "crash_need_kb": {
+   "value": 512,
+   "text": "512 KB",
+   "source": "kernel log: order:7 (4 KB << 7)"
+  },
+  "crash_order": {
+   "value": 7,
+   "text": "7",
+   "source": "kernel log: 'page allocation failure: order:N'"
+  },
+  "crash_request_bytes": {
+   "value": 352256,
+   "text": "352,256",
+   "source": "kernel log: nommu 'Allocation of length N'"
+  },
+  "crash_free_kb": {
+   "value": 1348,
+   "text": "1,348 KB",
+   "source": "kernel log: 'Normal: ... = N kB'"
+  },
+  "crash_largest_kb": {
+   "value": 256,
+   "text": "256 KB",
+   "source": "kernel log free-block line, = struct page buddy blocks in the snapshot"
+  },
+  "crash_fragmented": {
+   "value": true,
+   "text": "true",
+   "source": "crash_free_kb >= crash_need_kb > crash_largest_kb, kernel log histogram = struct page free blocks in the snapshot"
+  },
+  "crash_best_aligned_free_pages": {
+   "value": 99,
+   "text": "99",
+   "source": "struct page: free pages in the fullest 512 KB-aligned block (order7_windows); an order-7 block must be aligned"
+  },
+  "crash_longest_free_run_kb": {
+   "value": 556,
+   "text": "556 KB",
+   "source": "struct page: the longest run of free pages; it crosses a 512 KB boundary, so it is several free blocks, not one"
+  },
+  "ff_speed": {
+   "value": 84,
+   "text": "84x",
+   "source": "frames: real decode seconds / video seconds of the fast-forward"
+  }
+ },
+ "captions": {
+  "cold": {
+   "big": "Linux is booting inside an AI model.",
+   "small": "Qwen3.5-4B · RISC-V CPU compiled into 37 layers · RAM = Gated DeltaNet state · model alone",
+   "facts": [
+    "chip_layers"
+   ]
+  },
+  "zoom": {
+   "big": "This word lives inside the model.",
+   "small": "kernel log at 0x80178314 · model.layers.11 · key head 2 · value heads 21–22 · row 24",
+   "facts": [
+    "zoom_address",
+    "zoom_layer",
+    "zoom_key_head",
+    "zoom_value_heads",
+    "zoom_row"
+   ]
+  },
+  "ff": {
+   "big": "No emulator. The model computes every step.",
+   "small": "7,331,612 tokens · 0 wrong vs reference · 20.2 min on one H100 · sped up 84x",
+   "facts": [
+    "boot_tokens",
+    "boot_wrong",
+    "boot_minutes",
+    "gpu",
+    "ff_speed"
+   ]
+  },
+  "qwen": {
+   "big": "Now Qwen uses its own computer.",
+   "small": "Qwen's 32 layers write a shell script · its keystrokes run through the 37 CPU layers",
+   "facts": [
+    "qwen_layers",
+    "chip_layers"
+   ]
+  },
+  "crash": {
+   "big": "Not enough room in one piece to load the program.",
+   "small": "needs 512 KB in one piece (order 7) · 1,348 KB free · largest piece 256 KB · fragmented, not out of memory",
+   "facts": [
+    "crash_need_kb",
+    "crash_order",
+    "crash_free_kb",
+    "crash_largest_kb",
+    "crash_fragmented",
+    "crash_best_aligned_free_pages"
+   ]
+  },
+  "fix": {
+   "big": "Qwen reads the error and fixes its own code.",
+   "small": "new script: a while loop, no seq · 6,770,870 machine tokens · 0 wrong vs reference",
+   "facts": [
+    "call1_tokens",
+    "call1_wrong",
+    "call1_while_no_seq"
+   ]
+  },
+  "answer": {
+   "big": "20th Fibonacci number: 4181 ✓",
+   "small": "19,857,524 machine tokens since power-on · 0 wrong · model alone",
+   "facts": [
+    "fib_n",
+    "answer",
+    "total_tokens",
+    "total_wrong"
+   ]
+  },
+  "card": {
+   "big": "No training · Qwen's weights bit-identical · Linux 6.8-rc1 · open source",
+   "small": "every frame is drawn from the recorded runs (lx/results/video_*.json)",
+   "facts": [
+    "no_training",
+    "linux_version",
+    "qwen_tensors_differ",
+    "license"
+   ]
+  }
+ },
+ "segments": [
+  {
+   "segment": "cold",
+   "kind": "run",
+   "start": 0,
+   "frames": 84,
+   "run": 0,
+   "tokens": [
+    0,
+    3813706
+   ],
+   "real_seconds": 624.27,
+   "speed": 445.91,
+   "speed_label": "446x"
+  },
+  {
+   "segment": "cold",
+   "kind": "run",
+   "start": 84,
+   "frames": 96,
+   "run": 0,
+   "tokens": [
+    3813706,
+    3842780
+   ],
+   "real_seconds": 4.79,
+   "speed": 2.99,
+   "speed_label": "3.0x"
+  },
+  {
+   "segment": "zoom",
+   "kind": "pause",
+   "start": 180,
+   "frames": 600,
+   "run": 0,
+   "token": 3842780
+  },
+  {
+   "segment": "ff",
+   "kind": "run",
+   "start": 780,
+   "frames": 420,
+   "run": 0,
+   "tokens": [
+    3842780,
+    7331612
+   ],
+   "real_seconds": 585.06,
+   "speed": 83.58,
+   "speed_label": "84x"
+  },
+  {
+   "segment": "qwen",
+   "kind": "qwen",
+   "start": 1200,
+   "frames": 90,
+   "reply": 0,
+   "real_seconds": 8.4,
+   "speed": 5.6,
+   "speed_label": "5.6x"
+  },
+  {
+   "segment": "qwen",
+   "kind": "run",
+   "start": 1290,
+   "frames": 270,
+   "run": 1,
+   "tokens": [
+    0,
+    4676982
+   ],
+   "real_seconds": 817.96,
+   "speed": 181.77,
+   "speed_label": "182x"
+  },
+  {
+   "segment": "crash",
+   "kind": "pause",
+   "start": 1560,
+   "frames": 150,
+   "run": 1,
+   "token": 4676982
+  },
+  {
+   "segment": "crash",
+   "kind": "run",
+   "start": 1710,
+   "frames": 48,
+   "run": 1,
+   "tokens": [
+    4676982,
+    5400422
+   ],
+   "real_seconds": 120.91,
+   "speed": 151.14,
+   "speed_label": "151x"
+  },
+  {
+   "segment": "crash",
+   "kind": "pause",
+   "start": 1758,
+   "frames": 72,
+   "run": 1,
+   "token": 5400422
+  },
+  {
+   "segment": "crash",
+   "kind": "run",
+   "start": 1830,
+   "frames": 30,
+   "run": 1,
+   "tokens": [
+    5400422,
+    5755042
+   ],
+   "real_seconds": 60.18,
+   "speed": 120.37,
+   "speed_label": "120x"
+  },
+  {
+   "segment": "fix",
+   "kind": "qwen",
+   "start": 1860,
+   "frames": 90,
+   "reply": 1,
+   "real_seconds": 11.4,
+   "speed": 7.6,
+   "speed_label": "7.6x"
+  },
+  {
+   "segment": "fix",
+   "kind": "run",
+   "start": 1950,
+   "frames": 390,
+   "run": 1,
+   "tokens": [
+    5755042,
+    12525912
+   ],
+   "real_seconds": 1175.82,
+   "speed": 180.9,
+   "speed_label": "181x"
+  },
+  {
+   "segment": "answer",
+   "kind": "qwen",
+   "start": 2340,
+   "frames": 60,
+   "reply": 2,
+   "real_seconds": 3.6,
+   "speed": 3.6,
+   "speed_label": "3.6x"
+  },
+  {
+   "segment": "answer",
+   "kind": "hold",
+   "start": 2400,
+   "frames": 120
+  },
+  {
+   "segment": "card",
+   "kind": "card",
+   "start": 2520,
+   "frames": 240
+  }
+ ],
+ "marks": {
+  "freeze": 3842780,
+  "freeze_snapshot": "build/video_data/boot-3842780.pt",
+  "slow_from": 3813706,
+  "banner_L": 3817347,
+  "before": 4676982,
+  "after": 5400422
+ },
+ "checks": {
+  "boot_same_as_reference": true,
+  "boot_stream_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1",
+  "boot_console_matches_reference": true,
+  "session_calls_same_as_reference": [
+   true,
+   true
+  ],
+  "session_console_matches_reference": [
+   true,
+   true
+  ],
+  "address_map_all_identical": true,
+  "zoom_decodes": true,
+  "crash_histograms_agree": true
+ },
+ "labels": {
+  "mode": "model alone: the megakernel feeds the model its own predictions; the reference only checks the stream afterwards (results/video_*.json). In the session, Qwen's replies are its own greedy tokens; the chat harness types the command from Qwen's tool call as keystrokes at record boundaries (call*_keys), the session's only inputs; the boot's only input is GO",
+  "wrong": "tokens that differ from the reference machine's stream so far: 0 for every run (each stream's sha256 equals the reference's)",
+  "speed": "real decode seconds per video second, per piece (segments)",
+  "page square": "1 square = 4 KB of the machine's 4.5 MB of memory; lit = a store into it in this frame (fades over 0.5 s); free / in use / reserved from the kernel's struct page array, read from the machine's RAM",
+  "register cell": "lit = the register was written in this frame",
+  "heartbeat": "a pulse per timer interrupt (TRAP token, mcause 0x80000007)",
+  "layer bar": "model.layers 0-36 (the CPU) glow while machine tokens decode, 37-68 (Qwen) while Qwen writes; a CPU layer flashes when the state it holds is written (registers: 4, privilege: 5, RAM: by address)",
+  "zoom transitions": "dashed outlines are the zoom between levels (illustrative); every value shown is read from the snapshot",
+  "crash block": "the sliding 512 KB outline is illustrative: each aligned 512 KB block shows its real count of free pages from struct page"
+ },
+ "console_divisor_bytes_hidden": [
+  {
+   "run": 0,
+   "token": 3808154,
+   "byte": 109
+  },
+  {
+   "run": 0,
+   "token": 6559581,
+   "byte": 96
+  },
+  {
+   "run": 0,
+   "token": 6559615,
+   "byte": 96
+  },
+  {
+   "run": 0,
+   "token": 6561632,
+   "byte": 109
+  }
+ ],
+ "zoom": {
+  "snapshot": "build/video_data/boot-3842780.pt",
+  "tokens": 3842780,
+  "address": 2149024532,
+  "page": 376,
+  "page_rows": [
+   0,
+   127
+  ],
+  "layer": 11,
+  "key_head": 2,
+  "row": 24,
+  "value_heads": [
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   23
+  ],
+  "word_value_heads": [
+   21,
+   22
+  ],
+  "row_address": 2149024512,
+  "row_bytes_hex": "0000000000000000000000000000000080ffff3f4c696e75782076657273696f",
+  "offset_in_row": 20,
+  "word": "Linux",
+  "words": [
+   0,
+   0,
+   0,
+   0,
+   1073741696,
+   1970170188,
+   1702240376,
+   1869181810
+  ],
+  "classes_shape": [
+   8,
+   256,
+   128
+  ],
+  "a_bit": 128,
+  "a_ref": 16777216,
+  "decodes_to_word": true,
+  "written_at_tokens": [
+   13300,
+   13304,
+   33765,
+   33774,
+   34029,
+   34043,
+   34056,
+   36771,
+   36782
+  ]
+ },
+ "crash": {
+  "snapshot": "build/video_data/fib_call0_before-4676982.pt",
+  "tokens": 12008594,
+  "free_pages_struct_page": 337,
+  "free_blocks": [
+   [
+    250,
+    1
+   ],
+   [
+    252,
+    2
+   ],
+   [
+    256,
+    6
+   ],
+   [
+    464,
+    4
+   ],
+   [
+    480,
+    5
+   ],
+   [
+    728,
+    3
+   ],
+   [
+    736,
+    5
+   ],
+   [
+    856,
+    3
+   ],
+   [
+    864,
+    5
+   ],
+   [
+    984,
+    3
+   ],
+   [
+    992,
+    5
+   ],
+   [
+    1024,
+    6
+   ],
+   [
+    1088,
+    5
+   ],
+   [
+    1120,
+    1
+   ],
+   [
+    1122,
+    0
+   ]
+  ],
+  "histogram_kb_struct_page": {
+   "4": 1,
+   "8": 2,
+   "16": 1,
+   "32": 3,
+   "64": 1,
+   "128": 5,
+   "256": 2
+  },
+  "histogram_kb_kernel_log": {
+   "4": 1,
+   "8": 2,
+   "16": 1,
+   "32": 3,
+   "64": 1,
+   "128": 5,
+   "256": 2
+  },
+  "kernel_log_total_kb": 1348,
+  "histograms_agree": true,
+  "largest_free_block_kb": 256,
+  "longest_free_run_pages": 139,
+  "order": 7,
+  "request_bytes": 352256,
+  "order7_windows": [
+   0,
+   6,
+   64,
+   48,
+   0,
+   40,
+   40,
+   40,
+   99
+  ],
+  "decode_exactness": {
+   "rom_data_not_integer_0_15": 0,
+   "ram_data_not_0_or_128": 0,
+   "ballast_not_0_or_2^24": 0,
+   "unused_columns_nonzero": 0,
+   "rom_ram_overlap_words_differ": 0
+  }
+ }
+}

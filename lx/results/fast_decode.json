@@ -1,0 +1,17 @@
+{
+ "cmd": "echo hi",
+ "compile": true,
+ "idle_skip": false,
+ "stock_tokens": 2000,
+ "stock_s": 28.4,
+ "stock_tok_per_s": 70.5,
+ "fast_tokens": 60000,
+ "fast_s": 141.3,
+ "fast_tok_per_s": 424.7,
+ "fast_steady_tok_per_s": 439.7,
+ "streams_identical_first_n": true,
+ "state_elements_differ_after_n": 0,
+ "fast_same_as_reference": true,
+ "first_difference": null,
+ "console": ""
+}

@@ -1,0 +1,225 @@
+{
+ "checks": [
+  {
+   "snapshot": "../build/video_data/boot-1000000.pt",
+   "tokens": 1000000,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/boot-3808155.pt",
+   "tokens": 3808155,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/boot-3817870.pt",
+   "tokens": 3817870,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/boot-3842780.pt",
+   "tokens": 3842780,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/fib_call0_before-4676982.pt",
+   "tokens": 12008594,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/boot-5000000.pt",
+   "tokens": 5000000,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/fib_call0_after-5400422.pt",
+   "tokens": 12732034,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/fib_call0_end-5755042.pt",
+   "tokens": 13086654,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/fib_call1_end-6770870.pt",
+   "tokens": 19857524,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/video_data/boot-7331612.pt",
+   "tokens": 7331612,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  },
+  {
+   "snapshot": "../build/snapshots/boot-merged-mega.pt",
+   "tokens": 7331612,
+   "bytes_compared": 4718592,
+   "rom_bytes": 1009088,
+   "ram_layer_bytes": 3710976,
+   "bytes_differing": 0,
+   "first_differences": [],
+   "rom_equals_reference_rom": true,
+   "identical": true,
+   "exactness": {
+    "rom_data_not_integer_0_15": 0,
+    "ram_data_not_0_or_128": 0,
+    "ballast_not_0_or_2^24": 0,
+    "unused_columns_nonzero": 0,
+    "rom_ram_overlap_words_differ": 0
+   },
+   "negative_control_bytes_differing": 1,
+   "seconds": 1.0
+  }
+ ],
+ "all_identical": true
+}

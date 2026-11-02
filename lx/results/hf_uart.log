@@ -1,0 +1,26 @@
+NVIDIA H100 80GB HBM3, bf16, kernels: fla
+T=0x0: {'layers': 13, 'dims': 3571, 'heads': 36, 'ffn_units': 36700, 'max_units': 7281, 'max_heads': 10}, hidden 3840
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+  uart one-by-one -> b'ab\xff\x80\n' prefill     583 pos    1.0s      584 tok/s ok
+  uart one-by-one -> b'ab\xff\x80\n' decode      400 pos   20.4s       20 tok/s ok
+  uart burst -> b'hello \n' prefill     268 pos    0.1s     2124 tok/s ok
+  uart burst -> b'hello \n' decode      268 pos    4.7s       57 tok/s ok
+  uart drop-empty -> b'abcdyz\n' prefill     647 pos    0.1s     4993 tok/s ok
+  uart drop-empty -> b'abcdyz\n' decode      400 pos    6.6s       61 tok/s ok
+  uart refill -> b'abcdefghijk\n' prefill     527 pos    0.1s     4469 tok/s ok
+  uart refill -> b'abcdefghijk\n' decode      400 pos    6.6s       61 tok/s ok
+  uart full -> b'!"#$%&\'()*+,' prefill    1837 pos    0.2s    11080 tok/s ok
+  uart full -> b'!"#$%&\'()*+,' decode      400 pos    7.0s       57 tok/s ok
+T=0x40: {'layers': 14, 'dims': 3572, 'heads': 37, 'ffn_units': 36721, 'max_units': 8102, 'max_heads': 10}, hidden 3840
+  uart one-by-one -> b'ab\xff\x80\n' prefill     201 pos    0.1s     1391 tok/s ok
+  uart one-by-one -> b'ab\xff\x80\n' decode      201 pos    3.6s       57 tok/s ok
+  uart burst -> b'hello \n' prefill      98 pos    0.1s      696 tok/s ok
+  uart burst -> b'hello \n' decode       98 pos    1.9s       51 tok/s ok
+  uart drop-empty -> b'abcdyz\n' prefill     225 pos    0.1s     1802 tok/s ok
+  uart drop-empty -> b'abcdyz\n' decode      225 pos    4.1s       55 tok/s ok
+  uart refill -> b'abcdefghijk\n' prefill     187 pos    0.2s     1245 tok/s ok
+  uart refill -> b'abcdefghijk\n' decode      187 pos    3.4s       55 tok/s ok
+  uart full -> b'!"#$%&\'()*+,' prefill     663 pos    0.1s     5574 tok/s ok
+  uart full -> b'!"#$%&\'()*+,' decode      400 pos    7.1s       56 tok/s ok
+all ok

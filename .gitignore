@@ -20,3 +20,7 @@ __pycache__/
 *.pyc
 .venv/
 /kernel/initramfs-br.list
+# the boot's token stream, cached by lx/tools/draft_sim.py (56 MB)
+/kernel/boot_stream.npy
+# the video tools (lx/video/package.json, package-lock.json)
+/lx/video/node_modules/

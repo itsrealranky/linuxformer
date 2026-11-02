@@ -1,0 +1,16 @@
+{
+ "a": "../build/snapshots/boot-merged-fastc.pt",
+ "b": "../build/snapshots/boot-merged.pt",
+ "layers": 37,
+ "dtypes": [
+  "torch.bfloat16",
+  "torch.float32"
+ ],
+ "elements": 158826496,
+ "elements_differ": 0,
+ "differences": [],
+ "host_state_same": true,
+ "reference_ram_same": true,
+ "tokens": 7331612,
+ "ok": true
+}

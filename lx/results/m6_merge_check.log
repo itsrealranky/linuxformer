@@ -1,0 +1,13 @@
+merged: {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}, hidden 2560, 37 + 32 layers, 15.99B parameters, chip slots 1607 (98s)
+weights: 0 Qwen tensors differ []
+head: 0 of 459982 chip tokens not recovered from their code []
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+text: mean KL 6.02e-04 (max 9.14e-04; noise floor, sdpa vs eager: 5.51e-04), top-1 agreement 0.9903, greedy identical 7/8
+    'The capital of France is': stock ' Paris.\nA. True\nB. False\nAnswer:\nA\n\nWhich of the following i' | merged ' Paris.\nA. True\nB. False\nAnswer:\nA\n\nWhich of the following i'
+    'def fibonacci(n):\n    """Return the n-th': stock '    if n <= 0:\n        return 0\n    elif n == 1:\n        ret' | merged '    if n <= 0:\n        return 0\n    elif n == 1:\n        ret'
+    'Linux is a family of open-source Unix-li': stock ' the Linux kernel, which was originally developed by Linus T' | merged ' the Linux kernel, which was originally developed by Linus T'
+  chip: records 0..2000: 2657 tokens, 0 wrong
+  chip: records 4970260..4970880: 825 tokens, 0 wrong
+  chip: records 1240200..1240320: 159 tokens, 0 wrong
+all ok

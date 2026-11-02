@@ -1,0 +1,29 @@
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "out": "../build/hf/model",
+ "params_B": 15.99,
+ "shards": [
+  "model-00001-of-00007.safetensors",
+  "model-00002-of-00007.safetensors",
+  "model-00003-of-00007.safetensors",
+  "model-00004-of-00007.safetensors",
+  "model-00005-of-00007.safetensors",
+  "model-00006-of-00007.safetensors",
+  "model-00007-of-00007.safetensors"
+ ],
+ "weights_bytes": 31983963648,
+ "weights_GB": 31.98,
+ "snapshot_bytes": 633769332,
+ "total_bytes": 32640730040,
+ "tensors": 945,
+ "dtypes": {
+  "torch.bfloat16": 897,
+  "torch.float32": 48
+ },
+ "tensors_differ": [],
+ "config_keys_differ": [],
+ "snapshot_fields_differ": [],
+ "build_s": 96.4,
+ "save_s": 35.8,
+ "load_s": 8.5
+}

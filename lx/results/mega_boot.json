@@ -1,0 +1,68 @@
+{
+ "what": "megakernel boot (model alone)",
+ "device": "NVIDIA H100 80GB HBM3",
+ "commit": "26c52ef25413b067437ca358b70ac6ea7948fffa",
+ "clean_checkout": false,
+ "weights": "build/hf/model",
+ "ctas": 132,
+ "tokens_a_launch": 262144,
+ "input_purity": {
+  "inputs_checked": 7331612,
+  "forced_by_host": {
+   "GO": 1,
+   "keystrokes": 0
+  },
+  "chunks": 28,
+  "chunk_handoffs": 27,
+  "passed": true,
+  "rule": "the kernel's embedded input at step 0 is GO; at every other step, the model's own prediction from the step before (across a chunk boundary, the last chunk's last prediction, handed over by the host)"
+ },
+ "stream_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1",
+ "reference_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1",
+ "tokens": 7331612,
+ "reference_tokens": 7331612,
+ "seconds": 1218.4,
+ "minutes": 20.31,
+ "tok_per_s": 6017.4,
+ "propose_s": 20.4,
+ "mega_build_s": 1.0,
+ "same_as_reference": true,
+ "first_difference": null,
+ "first_difference_tokens": null,
+ "console_bytes": 2340,
+ "console_matches_reference": true,
+ "console": "mLinux version 6.8.0-rc1mini-rv32ima (linuxformer@localhost) (riscv32-buildroot-linux-uclibc-gcc.br_real (Buildroot -g851edd24) 13.2.0, GNU ld (GNU Binutils) 2.40) #8 Sat Oct 31 19:54:04 UTC 2026\r\nMachine model: riscv-minimal-nommu,qemu\r\nZone ranges:\r\n  Normal   [mem 0x0000000080000000-0x000000008047efff]\r\nMovable zone start for each node\r\nEarly memory node ranges\r\n  node   0: [mem 0x0000000080000000-0x000000008047efff]\r\nInitmem setup node 0 [mem 0x0000000080000000-0x000000008047efff]\r\nriscv: base ISA extensions \r\nriscv: ELF capabilities \r\nKernel command line: console=ttyS0 rdinit=/bin/sh\r\nDentry cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nInode-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nBuilt 1 zonelists, mobility grouping off.  Total pages: 1142\r\nmem auto-init: stack:off, heap alloc:off, heap free:off\r\nMemory: 2968K/4604K available (908K kernel code, 61K rwdata, 102K rodata, 415K init, 29K bss, 1636K reserved, 0K cma-reserved)\r\nSLUB: HWalign=64, Order=0-1, MinObjects=0, CPUs=1, Nodes=1\r\nNR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0\r\nriscv-intc: 32 local interrupts mapped\r\nclint: clint@11000000: timer running at 1000000 Hz\r\nclocksource: clint_clocksource: mask: 0xffffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 3526361616960 ns\r\nsched_clock: 64 bits at 1000kHz, resolution 1000ns, wraps every 2199023255500ns\r\nCalibrating delay loop (skipped), value calculated using timer frequency.. 2.00 BogoMIPS (lpj=10000)\r\npid_max: default: 4096 minimum: 301\r\nMount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nMountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nclocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns\r\nclocksource: Switched to clocksource clint_clocksource\r\nworkingset: timestamp_bits=30 max_order=10 bucket_order=0\r\nSerial: 8250/16550 driver, 1 ports, IRQ sharing disabled\r\nprintk: legacy console [ttyS0] disabled\r\n10000000.uart: ttyS0 at MMIO 0x10000000 (irq = 0, base_baud = 1048576) is a XR16850\r\nprintk: legacy console [ttyS0] enabled\r\nclk: Disabling unused clocks\r\n``mFreeing unused kernel init data memory: 340K\r\nThis architecture does not have kernel memory protection.\r\nRun /bin/sh as init process\r\n\r\n\r\nBusyBox v1.36.1 (2026-10-31 17:05:09 UTC) hush - the humble shell\r\n\r\n/ # ",
+ "peak_gb": 34.3,
+ "mega": {
+  "phases": 53,
+  "items": 497,
+  "ctas": 132,
+  "csr_nnz": 5872997,
+  "csc_nnz": 165001,
+  "head_nnz": 4133751,
+  "chans": 360883,
+  "head_dense": 31,
+  "head_sparse": 191,
+  "res_max": 180480,
+  "res_min": 142064,
+  "smem": 230528,
+  "pairs": [
+   3,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13
+  ],
+  "groups": [
+   [
+    28,
+    22
+   ]
+  ],
+  "grp_items_max": 3
+ },
+ "saved": "build/snapshots/boot-merged-mega.pt"
+}

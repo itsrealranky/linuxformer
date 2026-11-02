@@ -1,0 +1,27 @@
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+  1000: stock 0.7490 merged 0.7530 agree 0.9850 KL 4.08e-04 (172s)
+  2000: stock 0.7410 merged 0.7430 agree 0.9820 KL 5.20e-04 (340s)
+  3000: stock 0.7293 merged 0.7300 agree 0.9813 KL 5.04e-04 (450s)
+  4000: stock 0.7532 merged 0.7535 agree 0.9848 KL 5.42e-04 (566s)
+  5000: stock 0.7476 merged 0.7480 agree 0.9844 KL 6.41e-04 (676s)
+  6000: stock 0.7652 merged 0.7653 agree 0.9863 KL 6.33e-04 (791s)
+  7000: stock 0.7679 merged 0.7671 agree 0.9869 KL 6.04e-04 (902s)
+  8000: stock 0.7802 merged 0.7796 agree 0.9879 KL 5.67e-04 (1011s)
+  9000: stock 0.7651 merged 0.7639 agree 0.9869 KL 5.39e-04 (1121s)
+  10000: stock 0.7538 merged 0.7523 agree 0.9866 KL 5.23e-04 (1230s)
+  11000: stock 0.7421 merged 0.7411 agree 0.9857 KL 5.32e-04 (1340s)
+  12000: stock 0.7236 merged 0.7225 agree 0.9852 KL 5.87e-04 (1451s)
+  13000: stock 0.7258 merged 0.7245 agree 0.9852 KL 5.98e-04 (1561s)
+  14000: stock 0.7266 merged 0.7254 agree 0.9855 KL 5.82e-04 (1671s)
+{
+ "benchmark": "MMLU (cais/mmlu all, test), zero-shot, answer-letter argmax",
+ "questions": 14042,
+ "accuracy_stock": 0.7271756160091155,
+ "accuracy_merged": 0.7261073921093861,
+ "answers_agree": 0.9854721549636803,
+ "mean_kl_last_position": 0.0005809152184439939,
+ "max_kl": 0.015363959595561028,
+ "noise_floor_kl_sdpa_vs_eager": 0.00041130255525405346,
+ "noise_floor_questions": 2000,
+ "seconds": 1676
+}

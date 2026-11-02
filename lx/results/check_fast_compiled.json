@@ -1,0 +1,14 @@
+{
+ "chunk": 32768,
+ "skip": 2,
+ "prep_s": 0.2,
+ "layers_differing": 0,
+ "differences": [],
+ "head_identical": true,
+ "next_chunk_preds_identical": true,
+ "stock_s": 3.451,
+ "fast_s": 0.475,
+ "stock_tok_per_s": 9494,
+ "fast_tok_per_s": 68980,
+ "peak_gb": 58.3
+}

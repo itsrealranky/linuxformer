@@ -1,0 +1,25 @@
+{
+ "cmd": "echo hi",
+ "load_s": 25.5,
+ "boot": {
+  "what": "boot (snapshot, model alone)",
+  "path": "build/hf/model/boot-snapshot.safetensors",
+  "tokens": 7331612,
+  "seconds": 0.88,
+  "mega_build_s": 1.0
+ },
+ "tokens": 192519,
+ "seconds": 32.51,
+ "tok_per_s": 5922,
+ "same_as_reference": true,
+ "first_difference": null,
+ "console_matches_reference": true,
+ "input_purity": {
+  "inputs_checked": 192519,
+  "keystrokes": 8,
+  "launches": 6,
+  "passed": true
+ },
+ "launches": 6,
+ "output": "hi\n"
+}

@@ -1,0 +1,15 @@
+{
+ "benchmark": "MMLU (cais/mmlu all, test), zero-shot, answer-letter argmax",
+ "questions": 14042,
+ "accuracy_stock": 0.7271756160091155,
+ "accuracy_merged": 0.7261073921093861,
+ "answers_agree": 0.9854721549636803,
+ "mean_kl_last_position": 0.0005809152184439939,
+ "max_kl": 0.015363959595561028,
+ "noise_floor_kl_sdpa_vs_eager": 0.00044988590318249897,
+ "noise_floor_questions": 14042,
+ "accuracy_stock_eager": 0.7269619712291696,
+ "eager_answers_agree": 0.98497365047714,
+ "mean_kl_merged_on_floor_questions": 0.0005809152184439939,
+ "seconds": 2343
+}

@@ -1,0 +1,694 @@
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "chip_layers": 37,
+ "qwen_layers": 32,
+ "qwen_vocab": 248320,
+ "chip_token_offset": 248320,
+ "chip_vocab": 459982,
+ "hidden": 2560,
+ "ballast_dims": 10,
+ "chip_slots": 1607,
+ "code_dims": [
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222
+ ],
+ "kappa": 1.0,
+ "circuit": {
+  "layers": 37,
+  "dims": 3572,
+  "heads": 497,
+  "ffn_units": 36716,
+  "max_units": 8102,
+  "max_heads": 16
+ },
+ "params_B": 15.99,
+ "fast": false,
+ "lean": false,
+ "rehearsed": false,
+ "mode": "verified",
+ "boot": {
+  "what": "boot (snapshot)",
+  "path": "build/snapshots/boot-merged.pt",
+  "tokens": 7331612,
+  "seconds": 1.28
+ },
+ "chats": [
+  {
+   "question": "What Linux kernel version is your shell machine running, and on what CPU architecture? Check with the shell, then answer in one sentence.",
+   "events": [
+    {
+     "qwen": "<tool_call>\n<function=shell>\n<parameter=command>\nuname -a\n</parameter>\n</function>\n</tool_call>",
+     "tokens": 27,
+     "seconds": 3.5,
+     "call": "shell",
+     "command": "uname -a",
+     "machine_tokens": 844129,
+     "machine_seconds": 90.12,
+     "machine_tok_per_s": 9367,
+     "machine_timeline": [
+      [
+       3.52,
+       32768,
+       0
+      ],
+      [
+       7.03,
+       65536,
+       0
+      ],
+      [
+       10.52,
+       98304,
+       0
+      ],
+      [
+       14.01,
+       131072,
+       0
+      ],
+      [
+       17.51,
+       163840,
+       0
+      ],
+      [
+       21.0,
+       196608,
+       0
+      ],
+      [
+       24.5,
+       229376,
+       0
+      ],
+      [
+       28.0,
+       262144,
+       0
+      ],
+      [
+       31.5,
+       294912,
+       0
+      ],
+      [
+       34.99,
+       327680,
+       0
+      ],
+      [
+       38.48,
+       360448,
+       0
+      ],
+      [
+       41.97,
+       393216,
+       0
+      ],
+      [
+       45.46,
+       425984,
+       0
+      ],
+      [
+       48.95,
+       458752,
+       0
+      ],
+      [
+       52.45,
+       491520,
+       0
+      ],
+      [
+       55.95,
+       524288,
+       0
+      ],
+      [
+       59.44,
+       557056,
+       0
+      ],
+      [
+       62.94,
+       589824,
+       0
+      ],
+      [
+       66.44,
+       622592,
+       0
+      ],
+      [
+       69.93,
+       655360,
+       0
+      ],
+      [
+       73.43,
+       688128,
+       0
+      ],
+      [
+       76.92,
+       720896,
+       0
+      ],
+      [
+       80.42,
+       753664,
+       0
+      ],
+      [
+       83.92,
+       786432,
+       0
+      ],
+      [
+       87.41,
+       819200,
+       0
+      ],
+      [
+       90.12,
+       844129,
+       90
+      ]
+     ],
+     "machine_out": "uname -a\r\nLinux (none) 6.8.0-rc1mini-rv32ima #8 Sat Oct 31 19:54:04 UTC 2026 riscv32\r\n/ # ",
+     "wrong": 0,
+     "response": "Linux (none) 6.8.0-rc1mini-rv32ima #8 Sat Oct 31 19:54:04 UTC 2026 riscv32\n"
+    },
+    {
+     "qwen": "The shell machine is running Linux kernel version 6.8.0-rc1mini-rv32ima on the riscv32 CPU architecture.",
+     "tokens": 33,
+     "seconds": 3.7
+    }
+   ]
+  },
+  {
+   "question": "Use the shell to list the top-level directories of the machine's root filesystem, then tell me how many there are.",
+   "events": [
+    {
+     "qwen": "<tool_call>\n<function=shell>\n<parameter=command>\nls -d /\n</parameter>\n</function>\n</tool_call>",
+     "tokens": 28,
+     "seconds": 2.6,
+     "call": "shell",
+     "command": "ls -d /",
+     "machine_tokens": 819764,
+     "machine_seconds": 87.23,
+     "machine_tok_per_s": 9398,
+     "machine_timeline": [
+      [
+       3.48,
+       32768,
+       0
+      ],
+      [
+       6.97,
+       65536,
+       0
+      ],
+      [
+       10.45,
+       98304,
+       0
+      ],
+      [
+       13.94,
+       131072,
+       0
+      ],
+      [
+       17.43,
+       163840,
+       0
+      ],
+      [
+       20.93,
+       196608,
+       0
+      ],
+      [
+       24.42,
+       229376,
+       0
+      ],
+      [
+       27.91,
+       262144,
+       0
+      ],
+      [
+       31.4,
+       294912,
+       0
+      ],
+      [
+       34.88,
+       327680,
+       0
+      ],
+      [
+       38.36,
+       360448,
+       0
+      ],
+      [
+       41.86,
+       393216,
+       0
+      ],
+      [
+       45.34,
+       425984,
+       0
+      ],
+      [
+       48.83,
+       458752,
+       0
+      ],
+      [
+       52.32,
+       491520,
+       0
+      ],
+      [
+       55.8,
+       524288,
+       0
+      ],
+      [
+       59.28,
+       557056,
+       0
+      ],
+      [
+       62.77,
+       589824,
+       0
+      ],
+      [
+       66.25,
+       622592,
+       0
+      ],
+      [
+       69.73,
+       655360,
+       0
+      ],
+      [
+       73.22,
+       688128,
+       0
+      ],
+      [
+       76.71,
+       720896,
+       0
+      ],
+      [
+       80.19,
+       753664,
+       0
+      ],
+      [
+       83.67,
+       786432,
+       0
+      ],
+      [
+       87.15,
+       819200,
+       16
+      ],
+      [
+       87.23,
+       819764,
+       16
+      ]
+     ],
+     "machine_out": "ls -d /\r\n/\r\n/ # ",
+     "wrong": 0,
+     "response": "/\n"
+    },
+    {
+     "qwen": "<tool_call>\n<function=shell>\n<parameter=command>\nls -d / | wc -l\n</parameter>\n</function>\n</tool_call>",
+     "tokens": 32,
+     "seconds": 3.6,
+     "call": "shell",
+     "command": "ls -d / | wc -l",
+     "machine_tokens": 1536723,
+     "machine_seconds": 175.5,
+     "machine_tok_per_s": 8756,
+     "machine_timeline": [
+      [
+       3.49,
+       32768,
+       0
+      ],
+      [
+       6.97,
+       65536,
+       0
+      ],
+      [
+       10.45,
+       98304,
+       0
+      ],
+      [
+       13.94,
+       131072,
+       0
+      ],
+      [
+       17.42,
+       163840,
+       0
+      ],
+      [
+       20.91,
+       196608,
+       0
+      ],
+      [
+       24.4,
+       229376,
+       0
+      ],
+      [
+       27.88,
+       262144,
+       0
+      ],
+      [
+       31.36,
+       294912,
+       0
+      ],
+      [
+       34.85,
+       327680,
+       0
+      ],
+      [
+       38.34,
+       360448,
+       0
+      ],
+      [
+       41.83,
+       393216,
+       0
+      ],
+      [
+       45.32,
+       425984,
+       0
+      ],
+      [
+       48.8,
+       458752,
+       0
+      ],
+      [
+       52.28,
+       491520,
+       0
+      ],
+      [
+       55.76,
+       524288,
+       0
+      ],
+      [
+       59.24,
+       557056,
+       0
+      ],
+      [
+       62.72,
+       589824,
+       0
+      ],
+      [
+       66.2,
+       622592,
+       0
+      ],
+      [
+       69.68,
+       655360,
+       0
+      ],
+      [
+       73.17,
+       688128,
+       0
+      ],
+      [
+       76.66,
+       720896,
+       0
+      ],
+      [
+       80.15,
+       753664,
+       0
+      ],
+      [
+       83.64,
+       786432,
+       0
+      ],
+      [
+       87.12,
+       819200,
+       0
+      ],
+      [
+       90.61,
+       851968,
+       0
+      ],
+      [
+       94.1,
+       884736,
+       0
+      ],
+      [
+       97.59,
+       917504,
+       0
+      ],
+      [
+       101.09,
+       950272,
+       0
+      ],
+      [
+       104.58,
+       983040,
+       0
+      ],
+      [
+       108.07,
+       1015808,
+       0
+      ],
+      [
+       111.56,
+       1048576,
+       0
+      ],
+      [
+       115.05,
+       1081344,
+       0
+      ],
+      [
+       118.54,
+       1114112,
+       0
+      ],
+      [
+       122.02,
+       1146880,
+       0
+      ],
+      [
+       125.51,
+       1179648,
+       0
+      ],
+      [
+       129.01,
+       1212416,
+       0
+      ],
+      [
+       132.49,
+       1245184,
+       0
+      ],
+      [
+       135.98,
+       1277952,
+       0
+      ],
+      [
+       139.46,
+       1310720,
+       0
+      ],
+      [
+       142.94,
+       1343488,
+       0
+      ],
+      [
+       146.43,
+       1376256,
+       0
+      ],
+      [
+       149.91,
+       1409024,
+       0
+      ],
+      [
+       153.39,
+       1441792,
+       0
+      ],
+      [
+       156.87,
+       1474560,
+       0
+      ],
+      [
+       160.36,
+       1507328,
+       0
+      ],
+      [
+       175.5,
+       1536723,
+       24
+      ]
+     ],
+     "machine_out": "ls -d / | wc -l\r\n1\r\n/ # ",
+     "wrong": 0,
+     "response": "1\n"
+    },
+    {
+     "qwen": "There is 1 top-level directory in the root filesystem.",
+     "tokens": 13,
+     "seconds": 1.9
+    }
+   ]
+  },
+  {
+   "question": "Compute 123456 * 789 using shell arithmetic on the machine, and tell me the result.",
+   "events": [
+    {
+     "qwen": "<tool_call>\n<function=shell>\n<parameter=command>\necho $((123456 * 789))\n</parameter>\n</function>\n</tool_call>",
+     "tokens": 39,
+     "seconds": 3.3,
+     "call": "shell",
+     "command": "echo $((123456 * 789))",
+     "machine_tokens": 320660,
+     "machine_seconds": 34.18,
+     "machine_tok_per_s": 9382,
+     "machine_timeline": [
+      [
+       3.49,
+       32768,
+       0
+      ],
+      [
+       6.98,
+       65536,
+       0
+      ],
+      [
+       10.47,
+       98304,
+       0
+      ],
+      [
+       13.96,
+       131072,
+       0
+      ],
+      [
+       17.45,
+       163840,
+       0
+      ],
+      [
+       20.94,
+       196608,
+       0
+      ],
+      [
+       24.43,
+       229376,
+       0
+      ],
+      [
+       27.92,
+       262144,
+       0
+      ],
+      [
+       31.41,
+       294912,
+       0
+      ],
+      [
+       34.18,
+       320660,
+       38
+      ]
+     ],
+     "machine_out": "echo $((123456 * 789))\r\n97406784\r\n/ # ",
+     "wrong": 0,
+     "response": "97406784\n"
+    },
+    {
+     "qwen": "The result of 123456 * 789 is 97406784.",
+     "tokens": 27,
+     "seconds": 3.0
+    }
+   ]
+  }
+ ],
+ "peak_gb": 55.8,
+ "peak_reserved_gb": 56.9,
+ "max_gib": null
+}

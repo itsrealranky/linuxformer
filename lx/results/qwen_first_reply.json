@@ -1,0 +1,18 @@
+{
+ "question": "Write a shell script that prints the first 20 Fibonacci numbers, save it as /tmp/fib.sh, run it on the machine, and tell me the 20th number.",
+ "replies": {
+  "built": {
+   "text": "<tool_call>\n<function=shell>\n<parameter=command>\ncat > /tmp/fib.sh << 'EOF'\n#!/bin/sh\na=0\nb=1\nfor i in $(seq 1 20); do\n    echo $a\n    temp=$a\n    a=$b\n    b=$((temp + b))\ndone\nEOF\nchmod +x /tmp/fib.sh\n/tmp/fib.sh\n</parameter>\n</function>\n</tool_call>",
+   "tokens": 101
+  },
+  "export": {
+   "text": "<tool_call>\n<function=shell>\n<parameter=command>\ncat > /tmp/fib.sh << 'EOF'\n#!/bin/sh\na=0\nb=1\nfor i in $(seq 1 20); do\n    echo $a\n    temp=$a\n    a=$b\n    b=$((temp + b))\ndone\nEOF\nchmod +x /tmp/fib.sh\n/tmp/fib.sh\n</parameter>\n</function>\n</tool_call>",
+   "tokens": 101
+  },
+  "export, lx.fast": {
+   "text": "<tool_call>\n<function=shell>\n<parameter=command>\ncat > /tmp/fib.sh << 'EOF'\n#!/bin/sh\na=0\nb=1\nfor i in $(seq 1 20); do\n    echo $a\n    temp=$a\n    a=$b\n    b=$((temp + b))\ndone\nEOF\nchmod +x /tmp/fib.sh\n/tmp/fib.sh\n</parameter>\n</function>\n</tool_call>",
+   "tokens": 101
+  }
+ },
+ "all_same": true
+}

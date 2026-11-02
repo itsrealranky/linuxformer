@@ -1,0 +1,536 @@
+{
+ "what": "model-alone boot on the megakernel, stream and snapshots kept",
+ "tokens": 7331612,
+ "reference_tokens": 7331612,
+ "same_as_reference": true,
+ "stream_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1",
+ "reference_sha256": "7c903731f68013a7c15844539df692eeaa9857e98522f74d209b33a5b7dcf5c1",
+ "decode_seconds": 1214.1,
+ "seconds": 1215.2,
+ "minutes": 20.25,
+ "tok_per_s": 6033.4,
+ "snapshot_save_s": 4.3,
+ "propose_s": 21.8,
+ "console_bytes": 2340,
+ "console_matches_reference": true,
+ "console": "mLinux version 6.8.0-rc1mini-rv32ima (linuxformer@localhost) (riscv32-buildroot-linux-uclibc-gcc.br_real (Buildroot -g851edd24) 13.2.0, GNU ld (GNU Binutils) 2.40) #8 Sat Oct 31 19:54:04 UTC 2026\r\nMachine model: riscv-minimal-nommu,qemu\r\nZone ranges:\r\n  Normal   [mem 0x0000000080000000-0x000000008047efff]\r\nMovable zone start for each node\r\nEarly memory node ranges\r\n  node   0: [mem 0x0000000080000000-0x000000008047efff]\r\nInitmem setup node 0 [mem 0x0000000080000000-0x000000008047efff]\r\nriscv: base ISA extensions \r\nriscv: ELF capabilities \r\nKernel command line: console=ttyS0 rdinit=/bin/sh\r\nDentry cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nInode-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nBuilt 1 zonelists, mobility grouping off.  Total pages: 1142\r\nmem auto-init: stack:off, heap alloc:off, heap free:off\r\nMemory: 2968K/4604K available (908K kernel code, 61K rwdata, 102K rodata, 415K init, 29K bss, 1636K reserved, 0K cma-reserved)\r\nSLUB: HWalign=64, Order=0-1, MinObjects=0, CPUs=1, Nodes=1\r\nNR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0\r\nriscv-intc: 32 local interrupts mapped\r\nclint: clint@11000000: timer running at 1000000 Hz\r\nclocksource: clint_clocksource: mask: 0xffffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 3526361616960 ns\r\nsched_clock: 64 bits at 1000kHz, resolution 1000ns, wraps every 2199023255500ns\r\nCalibrating delay loop (skipped), value calculated using timer frequency.. 2.00 BogoMIPS (lpj=10000)\r\npid_max: default: 4096 minimum: 301\r\nMount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nMountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)\r\nclocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns\r\nclocksource: Switched to clocksource clint_clocksource\r\nworkingset: timestamp_bits=30 max_order=10 bucket_order=0\r\nSerial: 8250/16550 driver, 1 ports, IRQ sharing disabled\r\nprintk: legacy console [ttyS0] disabled\r\n10000000.uart: ttyS0 at MMIO 0x10000000 (irq = 0, base_baud = 1048576) is a XR16850\r\nprintk: legacy console [ttyS0] enabled\r\nclk: Disabling unused clocks\r\n``mFreeing unused kernel init data memory: 340K\r\nThis architecture does not have kernel memory protection.\r\nRun /bin/sh as init process\r\n\r\n\r\nBusyBox v1.36.1 (2026-10-31 17:05:09 UTC) hush - the humble shell\r\n\r\n/ # ",
+ "input_purity": {
+  "inputs_checked": 7331612,
+  "forced_by_host": {
+   "GO": 1,
+   "keystrokes": 0
+  },
+  "launches": 117,
+  "passed": true
+ },
+ "tokens_a_launch": 65536,
+ "timeline": [
+  [
+   10.419,
+   65536
+  ],
+  [
+   20.949,
+   131072
+  ],
+  [
+   31.493,
+   196608
+  ],
+  [
+   42.138,
+   262144
+  ],
+  [
+   52.644,
+   327680
+  ],
+  [
+   63.184,
+   393216
+  ],
+  [
+   73.793,
+   458752
+  ],
+  [
+   84.311,
+   524288
+  ],
+  [
+   94.955,
+   589824
+  ],
+  [
+   105.558,
+   655360
+  ],
+  [
+   116.128,
+   720896
+  ],
+  [
+   126.744,
+   786432
+  ],
+  [
+   137.257,
+   851968
+  ],
+  [
+   147.831,
+   917504
+  ],
+  [
+   158.398,
+   983040
+  ],
+  [
+   161.133,
+   1000000
+  ],
+  [
+   168.923,
+   1048576
+  ],
+  [
+   179.626,
+   1114112
+  ],
+  [
+   190.35,
+   1179648
+  ],
+  [
+   201.05,
+   1245184
+  ],
+  [
+   211.745,
+   1310720
+  ],
+  [
+   222.389,
+   1376256
+  ],
+  [
+   233.21,
+   1441792
+  ],
+  [
+   244.037,
+   1507328
+  ],
+  [
+   254.643,
+   1572864
+  ],
+  [
+   265.39,
+   1638400
+  ],
+  [
+   276.072,
+   1703936
+  ],
+  [
+   286.821,
+   1769472
+  ],
+  [
+   297.522,
+   1835008
+  ],
+  [
+   308.211,
+   1900544
+  ],
+  [
+   319.016,
+   1966080
+  ],
+  [
+   329.689,
+   2031616
+  ],
+  [
+   340.449,
+   2097152
+  ],
+  [
+   351.223,
+   2162688
+  ],
+  [
+   361.96,
+   2228224
+  ],
+  [
+   372.791,
+   2293760
+  ],
+  [
+   383.594,
+   2359296
+  ],
+  [
+   394.397,
+   2424832
+  ],
+  [
+   405.212,
+   2490368
+  ],
+  [
+   415.968,
+   2555904
+  ],
+  [
+   426.655,
+   2621440
+  ],
+  [
+   437.35,
+   2686976
+  ],
+  [
+   448.097,
+   2752512
+  ],
+  [
+   458.784,
+   2818048
+  ],
+  [
+   469.518,
+   2883584
+  ],
+  [
+   480.361,
+   2949120
+  ],
+  [
+   491.111,
+   3014656
+  ],
+  [
+   501.974,
+   3080192
+  ],
+  [
+   512.739,
+   3145728
+  ],
+  [
+   523.635,
+   3211264
+  ],
+  [
+   535.367,
+   3276800
+  ],
+  [
+   546.597,
+   3342336
+  ],
+  [
+   557.475,
+   3407872
+  ],
+  [
+   568.249,
+   3473408
+  ],
+  [
+   579.04,
+   3538944
+  ],
+  [
+   589.855,
+   3604480
+  ],
+  [
+   600.651,
+   3670016
+  ],
+  [
+   611.424,
+   3735552
+  ],
+  [
+   622.203,
+   3801088
+  ],
+  [
+   623.356,
+   3808155
+  ],
+  [
+   624.957,
+   3817870
+  ],
+  [
+   629.062,
+   3842780
+  ],
+  [
+   632.968,
+   3866624
+  ],
+  [
+   643.756,
+   3932160
+  ],
+  [
+   654.485,
+   3997696
+  ],
+  [
+   665.293,
+   4063232
+  ],
+  [
+   676.098,
+   4128768
+  ],
+  [
+   686.821,
+   4194304
+  ],
+  [
+   697.687,
+   4259840
+  ],
+  [
+   708.53,
+   4325376
+  ],
+  [
+   719.233,
+   4390912
+  ],
+  [
+   730.223,
+   4456448
+  ],
+  [
+   741.507,
+   4521984
+  ],
+  [
+   752.649,
+   4587520
+  ],
+  [
+   763.85,
+   4653056
+  ],
+  [
+   775.133,
+   4718592
+  ],
+  [
+   786.251,
+   4784128
+  ],
+  [
+   797.209,
+   4849664
+  ],
+  [
+   808.148,
+   4915200
+  ],
+  [
+   819.013,
+   4980736
+  ],
+  [
+   822.19,
+   5000000
+  ],
+  [
+   829.926,
+   5046272
+  ],
+  [
+   840.794,
+   5111808
+  ],
+  [
+   851.663,
+   5177344
+  ],
+  [
+   862.411,
+   5242880
+  ],
+  [
+   873.332,
+   5308416
+  ],
+  [
+   884.158,
+   5373952
+  ],
+  [
+   895.012,
+   5439488
+  ],
+  [
+   905.842,
+   5505024
+  ],
+  [
+   916.675,
+   5570560
+  ],
+  [
+   927.563,
+   5636096
+  ],
+  [
+   938.396,
+   5701632
+  ],
+  [
+   949.356,
+   5767168
+  ],
+  [
+   960.29,
+   5832704
+  ],
+  [
+   971.133,
+   5898240
+  ],
+  [
+   982.009,
+   5963776
+  ],
+  [
+   992.861,
+   6029312
+  ],
+  [
+   1003.741,
+   6094848
+  ],
+  [
+   1014.652,
+   6160384
+  ],
+  [
+   1025.502,
+   6225920
+  ],
+  [
+   1036.289,
+   6291456
+  ],
+  [
+   1047.077,
+   6356992
+  ],
+  [
+   1057.835,
+   6422528
+  ],
+  [
+   1068.65,
+   6488064
+  ],
+  [
+   1079.465,
+   6553600
+  ],
+  [
+   1090.236,
+   6619136
+  ],
+  [
+   1100.953,
+   6684672
+  ],
+  [
+   1112.127,
+   6750208
+  ],
+  [
+   1123.609,
+   6815744
+  ],
+  [
+   1135.374,
+   6881280
+  ],
+  [
+   1147.063,
+   6946816
+  ],
+  [
+   1158.784,
+   7012352
+  ],
+  [
+   1170.498,
+   7077888
+  ],
+  [
+   1181.998,
+   7143424
+  ],
+  [
+   1193.259,
+   7208960
+  ],
+  [
+   1204.517,
+   7274496
+  ],
+  [
+   1214.125,
+   7331612
+  ]
+ ],
+ "snapshots": [
+  {
+   "tokens": 1000000,
+   "path": "build/video_data/boot-1000000.pt",
+   "console_bytes": 0
+  },
+  {
+   "tokens": 3808155,
+   "path": "build/video_data/boot-3808155.pt",
+   "console_bytes": 1
+  },
+  {
+   "tokens": 3817870,
+   "path": "build/video_data/boot-3817870.pt",
+   "console_bytes": 6
+  },
+  {
+   "tokens": 3842780,
+   "path": "build/video_data/boot-3842780.pt",
+   "console_bytes": 197
+  },
+  {
+   "tokens": 5000000,
+   "path": "build/video_data/boot-5000000.pt",
+   "console_bytes": 2096
+  },
+  {
+   "tokens": 7331612,
+   "path": "build/video_data/boot-7331612.pt",
+   "console_bytes": 2340
+  }
+ ],
+ "stream": "build/video_data/boot_stream.npy",
+ "device": "NVIDIA H100 80GB HBM3",
+ "commit": "26c52ef25413b067437ca358b70ac6ea7948fffa",
+ "clean_checkout": false,
+ "weights": "build/hf/model",
+ "peak_gb": 34.3,
+ "total_s": 1247.8
+}

@@ -1,0 +1,71 @@
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "merged": true,
+ "chip_layers": 37,
+ "qwen_layers": 32,
+ "qwen_vocab": 248320,
+ "chip_token_offset": 248320,
+ "chip_vocab": 459982,
+ "hidden": 2560,
+ "ballast_dims": 10,
+ "chip_slots": 1607,
+ "code_dims": [
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  210,
+  211,
+  212,
+  213,
+  214,
+  215,
+  216,
+  217,
+  218,
+  219,
+  220,
+  221,
+  222
+ ],
+ "kappa": 1.0,
+ "circuit": {
+  "layers": 37,
+  "dims": 3572,
+  "heads": 497,
+  "ffn_units": 36716,
+  "max_units": 8102,
+  "max_heads": 16
+ },
+ "params_B": 15.99,
+ "fast": false,
+ "lean": false,
+ "build_s": 95,
+ "chunk": 32768,
+ "peak_gb": 33.4,
+ "peak_reserved_gb": 33.4,
+ "max_gib": null,
+ "runs": [
+  {
+   "what": "boot (snapshot)",
+   "path": "build/snapshots/boot-merged.pt",
+   "tokens": 7331612,
+   "seconds": 1.27,
+   "out": ""
+  },
+  {
+   "what": "pure",
+   "cmd": "echo hi",
+   "tokens": 182054,
+   "seconds": 2254.2,
+   "tok_per_s": 80.8,
+   "out": "echo hi\r\nhi\r\n/ # ",
+   "same_as_reference": true,
+   "first_difference": null
+  }
+ ]
+}

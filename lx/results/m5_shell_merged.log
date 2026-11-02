@@ -1,0 +1,21 @@
+NVIDIA H100 80GB HBM3: {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}, hidden 2560, 15.99B parameters (95s to build)
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+
+[boot (snapshot): 7331612 tokens in 1.28s]
+echo hi
+hi
+/ # 
+[182928 tokens, 19.54s at 9362 tok/s, proposed in 0.5s]
+uname -a
+Linux (none) 6.8.0-rc1mini-rv32ima #8 Sat Oct 31 19:54:04 UTC 2026 riscv32
+/ # 
+[837959 tokens, 89.19s at 9395 tok/s, proposed in 2.8s]
+ls /
+bin   dev   proc  root  sbin  tmp   usr
+/ # 
+[1054691 tokens, 112.25s at 9396 tok/s, proposed in 3.2s]
+cat /etc/hostname; echo $((6*7))
+cat: can't open '/etc/hostname': No such file or directory
+42
+/ # 
+[1061940 tokens, 113.04s at 9394 tok/s, proposed in 3.4s]

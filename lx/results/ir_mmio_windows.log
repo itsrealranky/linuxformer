@@ -1,0 +1,16 @@
+== window 120 1240200
+built in 12.9s, {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}
+records 1240200..1240320: 158 tokens (4.7s)
+158 tokens 27.7s ok
+== window 60 2946360
+built in 14.5s, {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}
+records 2946360..2946420: 76 tokens (9.9s)
+76 tokens 20.6s ok
+== window 620 4970260
+built in 10.6s, {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}
+records 4970260..4970880: 824 tokens (16.2s)
+824 tokens 32.1s ok
+== window 120 5500120
+built in 10.7s, {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}
+records 5500120..5500240: 162 tokens (17.5s)
+162 tokens 21.8s ok

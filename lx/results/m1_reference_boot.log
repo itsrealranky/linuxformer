@@ -1,0 +1,2 @@
+$ ref/lxtrace -f kernel/Image -m 0x480000 -k 'console=ttyS0 rdinit=/bin/sh' -T 0xF65C0 -x '/ # '
+records 5503225 tokens 7331611 instructions 5418133 interrupts 11 cycles 8380833 time 130950

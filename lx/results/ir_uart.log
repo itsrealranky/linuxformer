@@ -1,0 +1,11 @@
+  T=0x0 one-by-one     582 tokens (5 typed) out=b'ab\xff\x80\n' halted=True ok
+  T=0x0 burst          267 tokens (9 typed) out=b'hello \n' halted=True ok
+  T=0x0 drop-empty     646 tokens (8 typed) out=b'abcdyz\n' halted=True ok
+  T=0x0 refill         526 tokens (12 typed) out=b'abcdefghijk\n' halted=True ok
+  T=0x0 full          1836 tokens (64 typed) out=b'!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\n' halted=True ok
+  T=0x40 one-by-one     200 tokens (5 typed) out=b'ab\xff\x80\n' halted=True ok
+  T=0x40 burst           97 tokens (9 typed) out=b'hello \n' halted=True ok
+  T=0x40 drop-empty     224 tokens (8 typed) out=b'abcdyz\n' halted=True ok
+  T=0x40 refill         186 tokens (12 typed) out=b'abcdefghijk\n' halted=True ok
+  T=0x40 full           662 tokens (64 typed) out=b'!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\n' halted=True ok
+all ok

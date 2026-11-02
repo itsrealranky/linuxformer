@@ -1,0 +1,10 @@
+NVIDIA H100 80GB HBM3, bf16, kernels: fla
+{'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}, hidden 3840, 14.0B parameters (100s to build)
+ramtest: 5298034 records, 8427948 tokens, 7 console bytes (reference 21s)
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[W1031 22:38:52.606185565 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 0 while trying to allocate 8589934592 bytes (free: 610467840, total: 85017493504).
+[W1031 22:38:52.672309489 CUDACachingAllocator.cpp:3934] memory allocation failed with OOM on device 0 while trying to allocate 8589934592 bytes (free: 6088228864, total: 85017493504).
+{"run": "ramtest", "device": "NVIDIA H100 80GB HBM3", "kernels": "fla", "dtype": "bf16", "view": "chip", "share_slots": false, "chunk": 65536, "circuit": {"layers": 37, "dims": 3572, "heads": 497, "ffn_units": 36716, "max_units": 8102, "max_heads": 16}, "hidden": 3840, "params_B": 14.04, "ram_bytes": 4718592, "rom_bytes": 1009088, "records": 5298034, "tokens": 8427948, "positions_checked": 8427947, "wrong_tokens": 0, "first_wrong": [], "console_bytes": 7, "console_matches_reference": true, "seconds": 939.9, "tok_per_s": 8967, "records_per_s": 5637, "peak_gb": 70.5, "build_s": 100, "reference_s": 21}
+RAM OK
+
+all ok

@@ -59,12 +59,12 @@ def main():
     w(f"- riscv-tests, GPU (bf16 prefill + decode): {last_line('hf_rvtests.log', r'all ok|MISMATCH')}")
     w(f"- UART input schedules, GPU: {last_line('hf_uart.log', r'all ok|MISMATCH')}")
     pure_uart = [ln for ln in (RES / "session_uart.log").read_text().splitlines() if "pure " in ln]
-    w(f"- UART input schedules, lx.session (verify in pieces, save/load, pure path): "
+    w(f"- UART input schedules, lx.session (verified mode in pieces, save/load, model alone): "
       f"{sum('pure ok' in ln and 'verify ok' in ln for ln in pure_uart)}/{len(pure_uart)} ok "
       f"({last_line('session_uart.log', r'all ok|FAILED')})")
     w(f"- RAM test (every word above the ROM), GPU: {ram['wrong_tokens']} wrong of "
       f"{ram['positions_checked']:,} positions in {ram['seconds']} s\n")
-    w("## Boot to shell (speculative: the reference proposes, the model verifies every token)\n")
+    w("## Boot to shell (verified mode: the reference proposes, the model checks every token)\n")
     ref = dict(zip(*[iter(last_line("m1_reference_boot.log", r"^records").split())] * 2))
     w(f"- reference (ref/lxtrace on kernel/Image, reset to the first prompt): "
       f"{int(ref['instructions']):,} instructions, {int(ref['interrupts'])} interrupts, "
@@ -90,7 +90,7 @@ def main():
     for r in runs(shell, "run"):
         out = r["output"].strip().replace("\n", " / ").replace("|", "\\|")
         w(f"| `{r['cmd']}` | {r['tokens']:,} | {r['seconds']} | {out} |")
-    w(f"\nPure path (the model alone, its argmax fed back): `{pure['cmd']}`, {pure['tokens']:,} "
+    w(f"\nModel alone (its argmax fed back, no reference): `{pure['cmd']}`, {pure['tokens']:,} "
       f"tokens in {pure['seconds']} s ({pure['tok_per_s']} tok/s); identical to the reference: "
       f"{pure['same_as_reference']}\n")
     w("## Qwen's text behavior (merged model's text view vs stock Qwen3.5-4B)\n")
@@ -156,7 +156,7 @@ def main():
       "steps between its calls compiled by torch.compile, rounding where eager rounds. Nothing "
       "about the CPU is written by hand. The stock numbers above stand; these are the same runs "
       "with lx.fast.\n")
-    w(f"- verify path (chunked prefill), boot from reset: 0 wrong of {fboot['tokens'] - 1:,} in "
+    w(f"- verified mode (chunked prefill), boot from reset: 0 wrong of {fboot['tokens'] - 1:,} in "
       f"{fboot['seconds']} s ({fboot['tok_per_s']:,} tok/s, stock {mboot['tok_per_s']:,}: "
       f"{fboot['tok_per_s'] / mboot['tok_per_s']:.1f}x; peak {fb['peak_gb']} GB)")
     for name in ("fast_boot_compare.json", "fast_boot_compare2.json"):
@@ -168,7 +168,7 @@ def main():
           f"reference RAM same {c['reference_ram_same']}{con}")
     if (RES / "fast_decode.json").exists():
         fd = load("fast_decode.json")
-        w(f"- pure path (one token at a time, the model's argmax fed back), from the booted "
+        w(f"- model alone (one token at a time, the model's argmax fed back), from the booted "
           f"snapshot, `{fd['cmd']}` typed: the stock decode and lx.fast for "
           f"{fd['stock_tokens']:,} tokens, streams identical {fd['streams_identical_first_n']}, "
           f"state elements differing after them {fd['state_elements_differ_after_n']}; lx.fast "
@@ -176,27 +176,6 @@ def main():
           f"{fd['fast_same_as_reference']}; {fd['fast_steady_tok_per_s']} tok/s (the stock "
           f"decode over the 182k-token `{pure['cmd']}` run: {pure['tok_per_s']} tok/s, "
           f"{fd['fast_steady_tok_per_s'] / pure['tok_per_s']:.1f}x)")
-    if (RES / "pure_boot.json").exists():
-        pb = load("pure_boot.json")
-        w(f"- pure boot, from reset to the shell prompt, the model alone (no reference, no "
-          f"prefill; the proposer's stream only compared with afterwards, chunk by chunk): "
-          f"{pb['tokens']:,} tokens of {pb['reference_tokens']:,}, identical to the reference "
-          f"{pb['same_as_reference']} (first difference: {pb['first_difference']}), in "
-          f"{pb['seconds']} s = {pb['seconds'] / 3600:.2f} h ({pb['tok_per_s']} tok/s, peak "
-          f"{pb['peak_gb']} GB); console matches the reference {pb['console_matches_reference']} "
-          f"({pb['console_bytes']:,} bytes)")
-        if (RES / "pure_boot_compare.json").exists():
-            c = load("pure_boot_compare.json")
-            w(f"- the pure boot's final state against the stock (prefill) boot: "
-              f"{c['elements_differ']:,} of {c['elements']:,} state elements differ, host state "
-              f"same {c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
-            for d in c.get("differences", []):
-                w(f"  - layer {d['layer']} {d['state']} state {d['index']}: pure {d['a']:,.0f}, "
-                  f"prefill {d['b']:,.0f}")
-            if c.get("differences"):
-                w("  - these are a state row's ballast columns, which the circuit sets to "
-                  "2^24 = 16,777,216 (lx/ir.py A_REF): the decode kernel's sum lands on it, the "
-                  "chunked prefill kernel's one fp32 step below; the predictions are the same")
     if (RES / "head_activity.json").exists():
         ha = load("head_activity.json")
         dt, pb_ = ha["decode_per_token_total"], ha["prefill"]["boot"]
@@ -217,26 +196,10 @@ def main():
           f"identical to the reference {fs['fast_same_as_reference']}; "
           f"{fs['fast_steady_tok_per_s']} tok/s ({fs['fast_steady_tok_per_s'] / pure['tok_per_s']:.1f}x "
           f"the stock decode)")
-    if (RES / "pure_boot_skip.json").exists():
-        pk = load("pure_boot_skip.json")
-        w(f"- pure boot with idle_skip, from reset: {pk['tokens']:,} tokens of "
-          f"{pk['reference_tokens']:,}, identical to the reference {pk['same_as_reference']} "
-          f"(first difference: {pk['first_difference']}), in {pk['seconds']} s = "
-          f"{pk['seconds'] / 3600:.2f} h ({pk['tok_per_s']} tok/s, peak {pk['peak_gb']} GB); "
-          f"console matches the reference {pk['console_matches_reference']} "
-          f"({pk['console_bytes']:,} bytes)")
-        for name, what in (("pure_boot_skip_vs_pure.json", "the pure boot without idle_skip"),
-                           ("pure_boot_skip_compare.json", "the stock (prefill) boot")):
-            if (RES / name).exists():
-                c = load(name)
-                w(f"- its final state against {what}: {c['elements_differ']:,} of "
-                  f"{c['elements']:,} state elements differ"
-                  + "".join(f"; layer {d['layer']} {d['state']} {d['index']}: {d['a']:,.0f} vs "
-                            f"{d['b']:,.0f}" for d in c.get("differences", [])))
     if (RES / "fast_boot_compiled.json").exists():
         fc = load("fast_boot_compiled.json")
         cb = runs(fc, "boot")[0]
-        w(f"- verify path with the causal conv and silu compiled as well (fp32 products in the "
+        w(f"- verified mode with the causal conv and silu compiled as well (fp32 products in the "
           f"stock kernel's tap order, rounded once), boot from reset: 0 wrong of "
           f"{cb['tokens'] - 1:,} in {cb['seconds']} s ({cb['tok_per_s']:,} tok/s: "
           f"{cb['tok_per_s'] / mboot['tok_per_s']:.1f}x stock; peak {fc['peak_gb']} GB)")
@@ -254,10 +217,12 @@ def main():
           f"argmax) in one cooperative kernel resident on all {mk['ctas']} SMs, looping over "
           "tokens on the GPU: each step's argmax is the next step's input without the host. "
           "Same published tensors (their nonzero entries, in shared memory where they fit), "
-          "rounding where PyTorch and fla round. GDN steps that leave the residual as it is run "
-          "ahead of it speculatively; when one does not, its layer's conv windows are put back "
-          "and the steps after it run again (the result is the same either way). The numbers "
-          "above stand; these are the same model's.\n")
+          "rounding where PyTorch and fla round. Optimistic scheduling with check-and-redo: GDN "
+          "steps that usually leave the residual as it is are scheduled together, each checks "
+          "whether it wrote; when one did, its layer's conv windows are put back and the steps "
+          "after it run again in order. It never changes outputs; which layers are scheduled "
+          "this way (mega.PAIR_LAYERS, the group) was chosen from measured activity and only "
+          "affects speed. The numbers above stand; these are the same model's.\n")
         for name, where in (("mega_check_start.json", "from reset"),
                             ("mega_check_mid.json", "from boot token 3,000,000"),
                             ("mega_check_shell.json", "from the booted snapshot, `echo hi` typed")):
@@ -267,17 +232,38 @@ def main():
                   f"tokens, streams identical {c['streams_identical_first_n']}, state elements "
                   f"differing after them {c['state_elements_differ_after_n']}; the megakernel "
                   f"for {c['mega_tokens']:,} tokens identical to the reference "
-                  f"{c['mega_same_as_reference']} ({c['mega_long_tok_per_s']:,} tok/s; the stock "
-                  f"decode {c['stock_tok_per_s']} tok/s)")
+                  f"{c['mega_same_as_reference']} ({c['mega_long_tok_per_s']:,} tok/s)")
         w(f"- boot from reset to the shell prompt, the model alone (no reference, no prefill, no "
           f"drafting; the proposer's stream only compared with, chunk by chunk): "
           f"{mk['tokens']:,} tokens of {mk['reference_tokens']:,}, identical to the reference "
           f"{mk['same_as_reference']} (first difference: {mk['first_difference']}), in "
           f"{mk['seconds']} s = {mk['minutes']} min ({mk['tok_per_s']:,} tok/s, one launch per "
-          f"{mk['tokens_a_launch']:,} tokens); console matches the reference "
+          f"{mk['tokens_a_launch']:,} tokens, peak {mk['peak_gb']} GB); console matches the reference "
           f"{mk['console_matches_reference']} ({mk['console_bytes']:,} bytes)")
-        for name, what in (("mega_boot_vs_pure.json", "the stock decode's pure boot"),
-                           ("mega_boot_compare.json", "the stock (prefill) boot")):
+        w(f"- {mk['tok_per_s'] / pure['tok_per_s']:.1f}x the stock decode's "
+          f"{pure['tok_per_s']} tok/s (`{pure['cmd']}`, {pure['tokens']:,} tokens). Not included: "
+          f"loading the model ({ee['build_s']} s from the export) and building the megakernel "
+          f"({mk['mega_build_s']} s)")
+        if (RES / "mega_boot_run2.json").exists():
+            m2 = load("mega_boot_run2.json")
+            ip = m2["input_purity"]
+            w(f"- a second boot, from a clean checkout of commit {m2['commit'][:7]} (clean: "
+              f"{m2['clean_checkout']}): {m2['tokens']:,} tokens, stream SHA-256 equal to the "
+              f"reference's {m2['stream_sha256'] == m2['reference_sha256']}, identical to the "
+              f"reference {m2['same_as_reference']}, in {m2['seconds']} s = {m2['minutes']} min "
+              f"({m2['tok_per_s']:,} tok/s); console matches the reference "
+              f"{m2['console_matches_reference']} ({m2['console_bytes']:,} bytes)")
+            w(f"- its inputs, as the kernel recorded them: {ip['inputs_checked']:,} checked, "
+              f"forced by the host GO {ip['forced_by_host']['GO']} and keystrokes "
+              f"{ip['forced_by_host']['keystrokes']}, every other one the model's own prediction "
+              f"from the step before ({ip['chunks']} launches, {ip['chunk_handoffs']} handed "
+              f"over by the host): passed {ip['passed']}")
+            if (RES / "mega_boot_run2_vs_run1.json").exists():
+                c = load("mega_boot_run2_vs_run1.json")
+                w(f"- its final state against the first: {c['elements_differ']:,} of "
+                  f"{c['elements']:,} state elements differ, host state same "
+                  f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}")
+        for name, what in (("mega_boot_compare.json", "the verified-mode (prefill) boot"),):
             if (RES / name).exists():
                 c = load(name)
                 w(f"- its final state against {what}: {c['elements_differ']:,} of "
@@ -285,6 +271,54 @@ def main():
                   f"{c['host_state_same']}, reference RAM same {c['reference_ram_same']}"
                   + "".join(f"; layer {d['layer']} {d['state']} {d['index']}: {d['a']:,.0f} vs "
                             f"{d['b']:,.0f}" for d in c.get("differences", [])))
+    if (RES / "alone_check.json").exists():
+        c = load("alone_check.json")
+        ip = c["input_purity"]
+        w(f"- shell commands model alone (tests/check_alone.py, from the booted snapshot, "
+          f"typed at record boundaries): {c['cmd']!r}, {c['tokens']:,} tokens in "
+          f"{c['seconds']} s ({c['tok_per_s']:,} tok/s), identical to the reference "
+          f"{c['same_as_reference']}, console matches {c['console_matches_reference']}; "
+          f"inputs checked {ip['inputs_checked']:,}, keystrokes {ip['keystrokes']}, the rest "
+          f"the model's own predictions: passed {ip['passed']}")
+    if (RES / "alone_export_echo.json").exists():
+        c = load("alone_export_echo.json")
+        w(f"- the same from the exported files alone (`{Path(c['boot']['path']).name}`): model "
+          f"loaded in {c['load_s']} s, megakernel tables {c['boot']['mega_build_s']} s, then "
+          f"`{c['cmd']}` {c['tokens']:,} tokens in {c['seconds']} s, identical to the reference "
+          f"{c['same_as_reference']}, inputs: passed {c['input_purity']['passed']}")
+    if (RES / "m7_chat_fib_alone.json").exists():
+        fa = load("m7_chat_fib_alone.json")
+        w(f"\n## Qwen writes and runs a script, model alone (results/m7_chat_fib_alone.json)\n")
+        w("The machine decodes on the megakernel with no reference: Qwen's keystrokes are typed at "
+          "record boundaries, every other input is the model's own prediction, and the reference "
+          "is typed at the same places only to compare with afterwards.\n")
+        for c in fa["chats"]:
+            w(f"- Q: {c['question']}")
+            toks = secs = wrong = 0
+            for e in c["events"]:
+                if "command" in e:
+                    cmd, out = e["command"].splitlines(), e["response"].strip().splitlines()
+                    fail = [ln.strip("> ") for ln in out if "failure" in ln or "Unable" in ln]
+                    ip = e["input_purity"]
+                    w(f"  - shell, {len(cmd)} lines from `{cmd[0]}` -> {len(out)} lines, last "
+                      f"`{out[-1]}`" + ("".join(f", including `{x}`" for x in fail)) +
+                      f" ({e['machine_tokens']:,} machine tokens, {e['machine_seconds']} s, "
+                      f"identical to the reference {e['same_as_reference']}, keystrokes "
+                      f"{ip['keystrokes']}, inputs: passed {ip['passed']})")
+                    toks, secs = toks + e["machine_tokens"], secs + e["machine_seconds"]
+                    wrong += e["wrong"]
+                else:
+                    w(f"  - Qwen: {e['qwen']}")
+            w(f"  - machine total: {toks:,} tokens in {secs:.1f} s = {secs / 60:.1f} min, "
+              f"{wrong} wrong; peak {fa['peak_gb']} GB")
+        if (RES / "qwen_first_reply.json").exists():
+            q = load("qwen_first_reply.json")
+            assert list(q["replies"]) == ["built", "export", "export, lx.fast"]
+            w(f"- Qwen's first reply to this question, greedy, with the model built in memory, "
+              f"loaded from the export, and loaded with lx.fast "
+              f"(results/qwen_first_reply.json): all the same "
+              f"{q['all_same']} ({len(next(iter(q['replies'].values()))['text'])} characters), "
+              f"the same as this session's {q['replies']['built']['text'] == fa['chats'][0]['events'][0]['qwen']}")
     if (RES / "lean_boot.json").exists():
         lb = load("lean_boot.json")
         lr = runs(lb, "boot")[0]

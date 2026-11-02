@@ -1,0 +1,19 @@
+{
+ "a": "../build/snapshots/boot-merged.pt",
+ "b": "../build/snapshots/boot-merged-2.pt",
+ "layers": 37,
+ "dtypes": [
+  "torch.bfloat16",
+  "torch.float32"
+ ],
+ "elements": 158826496,
+ "elements_differ": 0,
+ "differences": [],
+ "host_state_same": true,
+ "reference_ram_same": true,
+ "tokens": 7331612,
+ "boot": "results/m4_boot_merged.json",
+ "console_bytes": 2340,
+ "console_matches_reference": true,
+ "ok": true
+}

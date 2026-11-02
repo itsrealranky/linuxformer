@@ -1,0 +1,47 @@
+{
+ "start": "boot token 0",
+ "cmd": "",
+ "mega": {
+  "phases": 53,
+  "items": 497,
+  "ctas": 132,
+  "csr_nnz": 5872997,
+  "csc_nnz": 165001,
+  "head_nnz": 4133751,
+  "chans": 360883,
+  "head_dense": 31,
+  "head_sparse": 191,
+  "res_max": 180480,
+  "res_min": 142064,
+  "smem": 230528,
+  "pairs": [
+   3,
+   7,
+   8,
+   9,
+   10,
+   11,
+   12,
+   13
+  ],
+  "groups": [
+   [
+    28,
+    22
+   ]
+  ],
+  "grp_items_max": 3
+ },
+ "build_s": 1.1,
+ "stock_tokens": 2000,
+ "stock_tok_per_s": 70.6,
+ "mega_first_tok_per_s": 6388.5,
+ "streams_identical_first_n": true,
+ "first_difference_vs_stock": null,
+ "state_elements_differ_after_n": 0,
+ "mega_tokens": 50000,
+ "mega_long_tok_per_s": 6287.9,
+ "mega_same_as_reference": true,
+ "first_difference_vs_reference": null,
+ "console": ""
+}

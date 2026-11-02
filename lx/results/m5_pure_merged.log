@@ -1,0 +1,9 @@
+NVIDIA H100 80GB HBM3: {'layers': 37, 'dims': 3572, 'heads': 497, 'ffn_units': 36716, 'max_units': 8102, 'max_heads': 16}, hidden 2560, 15.99B parameters (95s to build)
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+
+[boot (snapshot): 7331612 tokens in 1.27s]
+[transformers] `causal_conv1d_update` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+echo hi
+hi
+/ # 
+[pure path: 182054 tokens, 2254.2s at 80.8 tok/s, same as the reference: True]

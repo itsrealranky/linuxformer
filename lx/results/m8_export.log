@@ -1,0 +1,30 @@
+Writing model shards:   0%|          | 0/7 [00:00<?, ?it/s]Writing model shards:  14%|█▍        | 1/7 [00:05<00:33,  5.55s/it]Writing model shards:  29%|██▊       | 2/7 [00:10<00:27,  5.48s/it]Writing model shards:  43%|████▎     | 3/7 [00:16<00:22,  5.50s/it]Writing model shards:  57%|█████▋    | 4/7 [00:22<00:16,  5.50s/it]Writing model shards:  71%|███████▏  | 5/7 [00:27<00:10,  5.48s/it]Writing model shards:  86%|████████▌ | 6/7 [00:33<00:05,  5.53s/it]Writing model shards: 100%|██████████| 7/7 [00:35<00:00,  4.60s/it]Writing model shards: 100%|██████████| 7/7 [00:35<00:00,  5.11s/it]
+{
+ "device": "NVIDIA H100 80GB HBM3",
+ "out": "../build/hf/model",
+ "params_B": 15.99,
+ "shards": [
+  "model-00001-of-00007.safetensors",
+  "model-00002-of-00007.safetensors",
+  "model-00003-of-00007.safetensors",
+  "model-00004-of-00007.safetensors",
+  "model-00005-of-00007.safetensors",
+  "model-00006-of-00007.safetensors",
+  "model-00007-of-00007.safetensors"
+ ],
+ "weights_bytes": 31983963648,
+ "weights_GB": 31.98,
+ "snapshot_bytes": 633769332,
+ "total_bytes": 32640730040,
+ "tensors": 945,
+ "dtypes": {
+  "torch.bfloat16": 897,
+  "torch.float32": 48
+ },
+ "tensors_differ": [],
+ "config_keys_differ": [],
+ "snapshot_fields_differ": [],
+ "build_s": 96.4,
+ "save_s": 35.8,
+ "load_s": 8.5
+}

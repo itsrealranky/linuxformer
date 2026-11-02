@@ -1,0 +1,7 @@
+T=0x40: {'layers': 14, 'dims': 3572, 'heads': 37, 'ffn_units': 36721, 'max_units': 8102, 'max_heads': 10}, hidden 3840
+  one-by-one     201 tokens  verify ok (cuts [11, 67, 99, 108, 195], save/load at 99, out b'ab\xff\x80\n')  pure ok (152 tok/s, console b'ab\xff\x80\n')
+  burst           98 tokens  verify ok (cuts [39, 46, 52, 62, 63], save/load at 52, out b'hello \n')  pure ok (153 tok/s, console b'hello \n')
+  drop-empty     225 tokens  verify ok (cuts [36, 56, 73, 130, 194], save/load at 73, out b'abcdyz\n')  pure ok (152 tok/s, console b'abcdyz\n')
+  refill         187 tokens  verify ok (cuts [65, 137, 155, 159, 181], save/load at 155, out b'abcdefghijk\n')  pure ok (152 tok/s, console b'abcdefghijk\n')
+  full           663 tokens  verify ok (cuts [76, 102, 318, 339, 484], save/load at 318, out b'!"#$%&\'()*+,-./0')  pure ok (152 tok/s, console b'!"#$%&\'()*+,-./0')
+all ok
