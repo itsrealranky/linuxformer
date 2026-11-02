@@ -1,0 +1,15 @@
+model + circuit 12 s, 7.2 GB
+c-sudoku: 3064504 tokens, 2580085 instructions (1.188 tokens/instr), reference 15 s
+prefill {'seconds': 35.21, 'tok_per_s': 87034, 'instr_per_s': 73276}
+prefill+check {'seconds': 51.03, 'tok_per_s': 60047, 'instr_per_s': 50555, 'positions': 3064503, 'head_mismatches': 36, 'code_mismatches': 36, 'first_bad_chunk': 3047424}
+{"model": "../models/qwenputer-rv", "prog": "c-sudoku", "tokens": 3064504, "instructions": 2580085, "tokens_per_instr": 1.1877531166608852, "chunk": 16384, "device": "NVIDIA H100 80GB HBM3", "peak_gb": 11.12, "prefill": {"seconds": 35.21, "tok_per_s": 87034, "instr_per_s": 73276}, "prefill+check": {"seconds": 51.03, "tok_per_s": 60047, "instr_per_s": 50555, "positions": 3064503, "head_mismatches": 36, "code_mismatches": 36, "first_bad_chunk": 3047424}}
+model + circuit 12 s, 7.2 GB
+c-sudoku: 3064504 tokens, 2580085 instructions (1.188 tokens/instr), reference 15 s
+prefill {'seconds': 35.19, 'tok_per_s': 87084, 'instr_per_s': 73318}
+prefill+check {'seconds': 51.0, 'tok_per_s': 60085, 'instr_per_s': 50587, 'positions': 3064503, 'head_mismatches': 36, 'code_mismatches': 36, 'first_bad_chunk': 3014656}
+{"model": "../models/qwenputer-rv", "prog": "c-sudoku", "tokens": 3064504, "instructions": 2580085, "tokens_per_instr": 1.1877531166608852, "chunk": 65536, "device": "NVIDIA H100 80GB HBM3", "peak_gb": 15.49, "prefill": {"seconds": 35.19, "tok_per_s": 87084, "instr_per_s": 73318}, "prefill+check": {"seconds": 51.0, "tok_per_s": 60085, "instr_per_s": 50587, "positions": 3064503, "head_mismatches": 36, "code_mismatches": 36, "first_bad_chunk": 3014656}}
+model + circuit 12 s, 7.2 GB
+c-sudoku: 3064504 tokens, 2580085 instructions (1.188 tokens/instr), reference 15 s
+prefill {'seconds': 37.23, 'tok_per_s': 82317, 'instr_per_s': 69305}
+prefill+check {'seconds': 84.0, 'tok_per_s': 36484, 'instr_per_s': 30717, 'positions': 3064503, 'head_mismatches': 36, 'code_mismatches': 36, 'first_bad_chunk': 3059712}
+{"model": "../models/qwenputer-rv", "prog": "c-sudoku", "tokens": 3064504, "instructions": 2580085, "tokens_per_instr": 1.1877531166608852, "chunk": 4096, "device": "NVIDIA H100 80GB HBM3", "peak_gb": 10.94, "prefill": {"seconds": 37.23, "tok_per_s": 82317, "instr_per_s": 69305}, "prefill+check": {"seconds": 84.0, "tok_per_s": 36484, "instr_per_s": 30717, "positions": 3064503, "head_mismatches": 36, "code_mismatches": 36, "first_bad_chunk": 3059712}}

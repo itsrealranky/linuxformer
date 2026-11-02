@@ -1,0 +1,170 @@
+{
+ "model": "../models/qwenputer-rv",
+ "prog": "c-sudoku",
+ "tokens": 3064504,
+ "instructions": 2580085,
+ "tokens_per_instr": 1.1877531166608852,
+ "chunk": 65536,
+ "device": "NVIDIA H100 80GB HBM3",
+ "peak_gb": 15.49,
+ "prefill": {
+  "seconds": 59.72,
+  "tok_per_s": 51318,
+  "instr_per_s": 43206
+ },
+ "prefill+check": {
+  "seconds": 50.98,
+  "tok_per_s": 60112,
+  "instr_per_s": 50610,
+  "positions": 3064503,
+  "head_mismatches": 36,
+  "code_mismatches": 36,
+  "first_bad_chunk": 3014656,
+  "first_mismatches": [
+   {
+    "pos": 3062148,
+    "want": "F0(115)",
+    "head": "'s'",
+    "code": 82,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(115)"
+    ]
+   },
+   {
+    "pos": 3062166,
+    "want": "F0(111)",
+    "head": "'o'",
+    "code": 78,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(111)"
+    ]
+   },
+   {
+    "pos": 3062184,
+    "want": "F0(108)",
+    "head": "'l'",
+    "code": 75,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(108)"
+    ]
+   },
+   {
+    "pos": 3062202,
+    "want": "F0(118)",
+    "head": "'v'",
+    "code": 85,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(118)"
+    ]
+   },
+   {
+    "pos": 3062220,
+    "want": "F0(101)",
+    "head": "'e'",
+    "code": 68,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(101)"
+    ]
+   },
+   {
+    "pos": 3062238,
+    "want": "F0(100)",
+    "head": "'d'",
+    "code": 67,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(100)"
+    ]
+   },
+   {
+    "pos": 3062256,
+    "want": "F0(61)",
+    "head": "'='",
+    "code": 28,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(61)"
+    ]
+   },
+   {
+    "pos": 3062611,
+    "want": "F0(49)",
+    "head": "'1'",
+    "code": 16,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(49)"
+    ]
+   },
+   {
+    "pos": 3062648,
+    "want": "F0(32)",
+    "head": "' '",
+    "code": 220,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(32)"
+    ]
+   },
+   {
+    "pos": 3062666,
+    "want": "F0(115)",
+    "head": "'s'",
+    "code": 82,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(115)"
+    ]
+   },
+   {
+    "pos": 3062684,
+    "want": "F0(116)",
+    "head": "'t'",
+    "code": 83,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(116)"
+    ]
+   },
+   {
+    "pos": 3062702,
+    "want": "F0(101)",
+    "head": "'e'",
+    "code": 68,
+    "prev": [
+     "F0(0)",
+     "F0(0)",
+     "F0(1)",
+     "BYTE(101)"
+    ]
+   }
+  ]
+ }
+}

@@ -1,0 +1,42 @@
+m[    0.000000] Linux version 6.8.0-rc1mini-rv32ima (user@build-host) (riscv32-buildroot-linux-uclibc-gcc.br_real (Buildroot -g851edd24) 13.2.0, GNU ld (GNU Binutils) 2.40) #2 Sat Oct 31 16:38:16 UTC 2026
+[    0.000000] Machine model: riscv-minimal-nommu,qemu
+[    0.000000] Zone ranges:
+[    0.000000]   Normal   [mem 0x0000000080000000-0x0000000083ffefff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080000000-0x0000000083ffefff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x0000000083ffefff]
+[    0.000000] riscv: base ISA extensions 
+[    0.000000] riscv: ELF capabilities 
+[    0.000000] Kernel command line: console=ttyS0 rdinit=/bin/sh
+[    0.000000] Dentry cache hash table entries: 8192 (order: 3, 32768 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 4096 (order: 2, 16384 bytes, linear)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 16255
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Memory: 62488K/65532K available (1253K kernel code, 280K rwdata, 136K rodata, 670K init, 92K bss, 3044K reserved, 0K cma-reserved)
+[    0.000000] SLUB: HWalign=64, Order=0-1, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] riscv-intc: 32 local interrupts mapped
+[    0.000000] clint: clint@11000000: timer running at 1000000 Hz
+[    0.000000] clocksource: clint_clocksource: mask: 0xffffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 3526361616960 ns
+[    0.000393] sched_clock: 64 bits at 1000kHz, resolution 1000ns, wraps every 2199023255500ns
+[    0.095386] Console: colour dummy device 80x25
+[    0.108656] Calibrating delay loop (skipped), value calculated using timer frequency.. 2.00 BogoMIPS (lpj=10000)
+[    0.118612] pid_max: default: 4096 minimum: 301
+[    0.150086] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.160967] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.833322] devtmpfs: initialized
+[    1.377538] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    1.389339] futex hash table entries: 16 (order: -5, 192 bytes, linear)
+[    1.715033] cpu0: Ratio of byte access time to unaligned word access is 4.56, unaligned accesses are fast
+[    2.449123] clocksource: Switched to clocksource clint_clocksource
+[    6.753057] workingset: timestamp_bits=30 max_order=14 bucket_order=0
+[   21.026100] Serial: 8250/16550 driver, 1 ports, IRQ sharing disabled
+[   21.684600] printk: legacy console [ttyS0] disabled
+[   21.880761] 10000000.uart: ttyS0 at MMIO 0x10000000 (irq = 0, base_baud = 1048576) is a XR16850
+[   21.894499] printk: legacy console [ttyS0] enabled
+[   25.312118] clk: Disabling unused clocks
+``m[   28.740777] Freeing unused kernel image (initmem) memory: 668K
+[   28.753563] This architecture does not have kernel memory protection.
+[   28.766722] Run /bin/sh as init process
+~ # 

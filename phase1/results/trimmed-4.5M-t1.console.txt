@@ -1,0 +1,42 @@
+mLinux version 6.8.0-rc1mini-rv32ima (user@build-host) (riscv32-buildroot-linux-uclibc-gcc.br_real (Buildroot -g851edd24) 13.2.0, GNU ld (GNU Binutils) 2.40) #7 Sat Oct 31 17:26:06 UTC 2026
+Machine model: riscv-minimal-nommu,qemu
+Zone ranges:
+  Normal   [mem 0x0000000080000000-0x000000008047efff]
+Movable zone start for each node
+Early memory node ranges
+  node   0: [mem 0x0000000080000000-0x000000008047efff]
+Initmem setup node 0 [mem 0x0000000080000000-0x000000008047efff]
+riscv: base ISA extensions 
+riscv: ELF capabilities 
+Kernel command line: console=ttyS0 rdinit=/bin/sh
+Dentry cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Inode-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Built 1 zonelists, mobility grouping off.  Total pages: 1142
+mem auto-init: stack:off, heap alloc:off, heap free:off
+Memory: 2968K/4604K available (908K kernel code, 61K rwdata, 102K rodata, 415K init, 29K bss, 1636K reserved, 0K cma-reserved)
+SLUB: HWalign=64, Order=0-1, MinObjects=0, CPUs=1, Nodes=1
+NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+riscv-intc: 32 local interrupts mapped
+clint: clint@11000000: timer running at 1000000 Hz
+clocksource: clint_clocksource: mask: 0xffffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 3526361616960 ns
+sched_clock: 64 bits at 1000kHz, resolution 1000ns, wraps every 2199023255500ns
+Calibrating delay loop (skipped), value calculated using timer frequency.. 2.00 BogoMIPS (lpj=10000)
+pid_max: default: 4096 minimum: 301
+Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+clocksource: Switched to clocksource clint_clocksource
+workingset: timestamp_bits=30 max_order=10 bucket_order=0
+Serial: 8250/16550 driver, 1 ports, IRQ sharing disabled
+printk: legacy console [ttyS0] disabled
+10000000.uart: ttyS0 at MMIO 0x10000000 (irq = 0, base_baud = 1048576) is a XR16850
+printk: legacy console [ttyS0] enabled
+clk: Disabling unused clocks
+``mFreeing unused kernel image (initmem) memory: 412K
+This architecture does not have kernel memory protection.
+Run /bin/sh as init process
+
+
+BusyBox v1.36.1 (2026-10-31 17:05:09 UTC) hush - the humble shell
+
+/ # 

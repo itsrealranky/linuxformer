@@ -1,0 +1,25 @@
+{
+ "model": "../models/qwenputer-rv",
+ "prog": "c-sudoku",
+ "tokens": 3064540,
+ "instructions": 2580085,
+ "tokens_per_instr": 1.1877670696895646,
+ "chunk": 65536,
+ "device": "NVIDIA H100 80GB HBM3",
+ "peak_gb": 15.49,
+ "prefill": {
+  "seconds": 35.19,
+  "tok_per_s": 87080,
+  "instr_per_s": 73314
+ },
+ "prefill+check": {
+  "seconds": 51.02,
+  "tok_per_s": 60064,
+  "instr_per_s": 50569,
+  "positions": 3064539,
+  "head_mismatches": 0,
+  "code_mismatches": 0,
+  "first_bad_chunk": null,
+  "first_mismatches": []
+ }
+}
