@@ -5,7 +5,7 @@
 #   the kernel tree (kernel.org 6.8-rc1 + kernel/patches) and busybox (1.36.1 + userland/patches)
 #   ref/lxtrace, riscv-tests, the test programs, Qwen3.5-4B, MMLU
 # kernel/Image, the image every result booted, is in the repository; KERNEL=1 rebuilds it from
-# these sources (identical except busybox's build-time banner, which changes the boot's trace).
+# these sources, bit for bit (the build scripts fix every timestamp, see NOTICE).
 #
 #   scripts/setup.sh    with requirements.txt's environment active; needs git, gcc, make,
 #                       riscv64-unknown-elf-gcc and the hf CLI
